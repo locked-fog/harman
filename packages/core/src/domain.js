@@ -115,6 +115,7 @@ export function createProfile(state, input) {
     models: input.models ?? {},
     cordisPatch: input.cordisPatch ?? [],
     active: false,
+    running: false,
   }
   for (const resourceId of state.profiles[name].resources) {
     const resource = requireRecord(state.resources, resourceId, 'resource')

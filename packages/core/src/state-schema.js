@@ -65,6 +65,19 @@ export function validateState(state, options = {}) {
     }
   }
 
+  let latestRuntimes = 0
+  for (const [id, runtime] of Object.entries(state.runtimes)) {
+    objectRecord(runtime, `runtime ${id}`)
+    if (runtime.id !== id || id !== `dsh@${runtime.version}`) throw new ValidationError(`runtime map key ${id} is inconsistent`)
+    nonEmpty(runtime.executable, `runtime ${id} executable`)
+    if (!isAbsolute(runtime.executable)) throw new ValidationError(`runtime ${id} executable must be absolute`)
+    if (!/^[a-f0-9]{64}$/.test(runtime.contentHash)) throw new ValidationError(`runtime ${id} contentHash must be SHA-256`)
+    if (!['compatible', 'breaking', 'unvalidated'].includes(runtime.compatibility)) throw new ValidationError(`runtime ${id} compatibility is invalid`)
+    uniqueStrings(runtime.launcherArgs ?? [], `runtime ${id} launcherArgs`)
+    if (runtime.latest === true) latestRuntimes += 1
+  }
+  if (latestRuntimes > 1) throw new ValidationError('only one DSH Runtime may be latest')
+
   for (const [id, pkg] of Object.entries(state.packages)) {
     objectRecord(pkg, `package ${id}`)
     if (pkg.id !== id) throw new ValidationError(`package map key ${id} does not match its id`)
@@ -115,6 +128,9 @@ export function validateState(state, options = {}) {
     if (!isAbsolute(profile.dshHome)) throw new ValidationError(`profile ${name} dshHome must be absolute`)
     uniqueStrings(profile.packages, `profile ${name} packages`)
     uniqueStrings(profile.resources, `profile ${name} resources`)
+    uniqueStrings(profile.promptOrder, `profile ${name} promptOrder`)
+    if (typeof profile.active !== 'boolean') throw new ValidationError(`profile ${name} active must be boolean`)
+    if (profile.running !== undefined && typeof profile.running !== 'boolean') throw new ValidationError(`profile ${name} running must be boolean`)
     objectRecord(profile.runtime, `profile ${name} runtime`)
     const hasLatest = profile.runtime.channel === 'latest' && profile.runtime.version === undefined
     const hasPin = typeof profile.runtime.version === 'string' && profile.runtime.version !== '' && profile.runtime.channel === undefined

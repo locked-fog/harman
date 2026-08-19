@@ -4,7 +4,7 @@ import { homedir } from 'node:os'
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import {
-  HarmanError, PackageManager, ResourceManager, StateStore, ValidationError,
+  HarmanError, PackageManager, ProfileManager, ResourceManager, RuntimeManager, StateStore, ValidationError,
   explainPackage, explainProfile, explainResource, packageImpact, profileImpact,
 } from '../../packages/core/src/index.js'
 
@@ -76,6 +76,19 @@ Commands:
   resource disable ID [--profile NAME]
   resource bind ID --profile NAME
   resource detach ID --profile NAME
+  runtime register VERSION EXECUTABLE SHA256 SOURCE [--official]
+  runtime latest ID         select a compatible official Runtime as latest
+  runtime list              list registered DSH Runtimes
+  profile create NAME [--config FILE] [--runtime VERSION]
+  profile list|show NAME    list Profiles or show one Profile
+  profile clone OLD NEW     clone declarations into an isolated DSH_HOME
+  profile rename OLD NEW    rename an inactive Profile
+  profile delete NAME       delete Harman-owned Profile state (--yes required)
+  profile diff LEFT RIGHT   compare Profile declarations
+  profile materialize NAME  rebuild the stock DSH Profile view
+  profile activate|deactivate NAME
+  profile run NAME [ARGS...] launch stock DSH in a read-only-root sandbox
+  profile doctor NAME       validate Runtime, lock, manifest, and Store links
   -Sy                        synchronize repository indexes
   -Ss QUERY                  search synchronized repositories
   -S PACKAGE...              solve, verify, and install packages
@@ -116,6 +129,8 @@ async function execute(argv) {
   const store = new StateStore(parsed.home)
   const packages = new PackageManager(store)
   const resources = new ResourceManager(store)
+  const runtimes = new RuntimeManager(store)
+  const profiles = new ProfileManager(store, { runtimes })
 
   function option(name) {
     const index = operands.indexOf(name)
@@ -209,6 +224,50 @@ async function execute(argv) {
       const result = action === 'bind' ? await resources.bind(operands[0], profile) : await resources.detach(operands[0], profile)
       return { stdout: render(result, parsed.json), code: 0 }
     }
+  }
+  if (command === 'runtime') {
+    const action = operands.shift()
+    const officialIndex = operands.indexOf('--official')
+    const official = officialIndex !== -1
+    if (official) operands.splice(officialIndex, 1)
+    if (action === 'register' && operands.length === 4) {
+      await store.initialize()
+      return { stdout: render(await runtimes.register({ version: operands[0], executable: operands[1], contentHash: operands[2], source: operands[3], compatibility: 'compatible', official }), parsed.json), code: 0 }
+    }
+    if (action === 'latest' && operands.length === 1) {
+      await store.initialize()
+      return { stdout: render(await runtimes.setLatest(operands[0]), parsed.json), code: 0 }
+    }
+    if (action === 'list' && operands.length === 0) {
+      await store.initialize()
+      return { stdout: render(await runtimes.list(), parsed.json), code: 0 }
+    }
+  }
+  if (command === 'profile') {
+    const action = operands.shift()
+    const configPath = option('--config')
+    const runtimeVersion = option('--runtime')
+    if (action === 'create' && operands.length === 1) {
+      const config = configPath === undefined ? {} : JSON.parse(await readFile(resolve(configPath), 'utf8'))
+      const runtime = runtimeVersion === undefined ? (config.runtime ?? { channel: 'latest' }) : { version: runtimeVersion }
+      return { stdout: render(await profiles.create({ ...config, name: operands[0], runtime }), parsed.json), code: 0 }
+    }
+    if (action === 'list' && operands.length === 0) {
+      await store.initialize()
+      return { stdout: render(await profiles.list(), parsed.json), code: 0 }
+    }
+    if (action === 'show' && operands.length === 1) {
+      await store.initialize()
+      return { stdout: render(await profiles.show(operands[0]), parsed.json), code: 0 }
+    }
+    if (action === 'clone' && operands.length === 2) return { stdout: render(await profiles.clone(operands[0], operands[1]), parsed.json), code: 0 }
+    if (action === 'rename' && operands.length === 2) return { stdout: render(await profiles.rename(operands[0], operands[1]), parsed.json), code: 0 }
+    if (action === 'delete' && operands.length === 1) return { stdout: render(await profiles.remove(operands[0], { dryRun: parsed.dryRun, confirmed: parsed.confirmed }), parsed.json), code: 0 }
+    if (action === 'diff' && operands.length === 2) return { stdout: render(await profiles.diff(operands[0], operands[1]), parsed.json), code: 0 }
+    if (action === 'materialize' && operands.length === 1) return { stdout: render(await profiles.materialize(operands[0]), parsed.json), code: 0 }
+    if ((action === 'activate' || action === 'deactivate') && operands.length === 1) return { stdout: render(await profiles.setActive(operands[0], action === 'activate'), parsed.json), code: 0 }
+    if (action === 'run' && operands.length >= 1) return { stdout: render(await profiles.run(operands[0], operands.slice(1)), parsed.json), code: 0 }
+    if (action === 'doctor' && operands.length === 1) return { stdout: render(await profiles.doctor(operands[0]), parsed.json), code: 0 }
   }
   if (command === '-Sy' && operands.length === 0) {
     return { stdout: render(await packages.sync(), parsed.json), code: 0 }

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "run_id": "20260819T110000Z-profile",
+  "milestone": "M4-headless",
+  "started_at": "2026-08-19T10:30:00Z",
+  "finished_at": "2026-08-19T11:00:00Z",
+  "remote": {
+    "ssh_alias": "codex-test",
+    "hostname": "archgo",
+    "user": "codexlab",
+    "os": "Arch Linux rolling",
+    "kernel": "7.1.8-zen1-3-zen",
+    "arch": "x86_64",
+    "filesystem": "btrfs"
+  },
+  "source": {
+    "harman_commit": "WORKTREE-on-94867f3",
+    "working_tree_archive_sha256": "ad8c7ca6bafe80c9d2fdba7a797944518ddbdb4a1fbe4894608bb9863e1f8645",
+    "dsh_channel": "latest",
+    "dsh_version": "0.1.0-rc.7",
+    "dsh_artifact_sha256": "2f8f0b763d611ac536f7a9411ee43c0afc067c1b8732c3102c04dbe398bcacc5"
+  },
+  "recovery": {
+    "snapper_config": "root",
+    "pre_test_snapshot": null,
+    "snapshot_reason": "All Profile, namespace, Store, and stock DSH tests stayed in user workspaces",
+    "rebooted": false
+  },
+  "tests": [
+    {
+      "id": "M4-FULL-REGRESSION",
+      "result": "pass",
+      "assertions": 46,
+      "log_sha256": "29894c1b4c72d672eed450819907d5ec46fd43712955d5ab4a0925510d4ea91d"
+    },
+    {
+      "id": "M4-STOCK-DSH-COMMUNITY-BUNDLE",
+      "result": "pass",
+      "sample": "@icelily/dsh-gitbash-preset@0.1.2",
+      "sample_sha256": "e7bec1d675cb12c84a06025fb4660fbb28fa7e67aaf0f8d35ab92bbc001476c5",
+      "log_sha256": "f4e76610b1f96092881743fc3314efa494e60f92e2ba74717ac96ca04f844c8d"
+    },
+    {
+      "id": "M4-CONCURRENT-ISOLATION",
+      "result": "pass",
+      "checks": ["distinct DSH_HOME", "parallel writes private", "other Profile denied", "host root denied", "latest and exact pin"]
+    }
+  ],
+  "persistent_remote_changes": [
+    "~/test-work/harman/source-m4-* disposable source copies",
+    "~/test-work/harman/m4-stock-home integration state",
+    "~/test-work/harman/m4-final.log and m4-stock-summary.log"
+  ],
+  "result": "pass-headless",
+  "unresolved_risks": [
+    "M4 bridge/API and DSH Web client remain required before M4/M7 closure",
+    "Full live MCP/model/session compatibility and Runtime latest monitoring remain required",
+    "Profile export/import/restore is M5"
+  ]
+}
