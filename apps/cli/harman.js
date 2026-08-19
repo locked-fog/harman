@@ -4,7 +4,7 @@ import { homedir } from 'node:os'
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import {
-  HarmanError, PackageManager, ProfileManager, ResourceManager, RuntimeManager, StateStore, ValidationError,
+  HarmanError, PackageManager, ProfileBundleManager, ProfileManager, ResourceManager, RuntimeManager, StateStore, ValidationError,
   explainPackage, explainProfile, explainResource, packageImpact, profileImpact,
 } from '../../packages/core/src/index.js'
 
@@ -87,8 +87,12 @@ Commands:
   profile diff LEFT RIGHT   compare Profile declarations
   profile materialize NAME  rebuild the stock DSH Profile view
   profile activate|deactivate NAME
+  profile runtime NAME latest|VERSION
   profile run NAME [ARGS...] launch stock DSH in a read-only-root sandbox
   profile doctor NAME       validate Runtime, lock, manifest, and Store links
+  profile export NAME DIR   create a portable secret-free Profile bundle
+  profile restore DIR [NAME] [--mode strict|follow-latest]
+  profile import DIR [NAME] alias for restore
   -Sy                        synchronize repository indexes
   -Ss QUERY                  search synchronized repositories
   -S PACKAGE...              solve, verify, and install packages
@@ -131,6 +135,7 @@ async function execute(argv) {
   const resources = new ResourceManager(store)
   const runtimes = new RuntimeManager(store)
   const profiles = new ProfileManager(store, { runtimes })
+  const bundles = new ProfileBundleManager(store, { profiles })
 
   function option(name) {
     const index = operands.indexOf(name)
@@ -247,6 +252,7 @@ async function execute(argv) {
     const action = operands.shift()
     const configPath = option('--config')
     const runtimeVersion = option('--runtime')
+    const restoreMode = option('--mode')
     if (action === 'create' && operands.length === 1) {
       const config = configPath === undefined ? {} : JSON.parse(await readFile(resolve(configPath), 'utf8'))
       const runtime = runtimeVersion === undefined ? (config.runtime ?? { channel: 'latest' }) : { version: runtimeVersion }
@@ -266,8 +272,11 @@ async function execute(argv) {
     if (action === 'diff' && operands.length === 2) return { stdout: render(await profiles.diff(operands[0], operands[1]), parsed.json), code: 0 }
     if (action === 'materialize' && operands.length === 1) return { stdout: render(await profiles.materialize(operands[0]), parsed.json), code: 0 }
     if ((action === 'activate' || action === 'deactivate') && operands.length === 1) return { stdout: render(await profiles.setActive(operands[0], action === 'activate'), parsed.json), code: 0 }
+    if (action === 'runtime' && operands.length === 2) return { stdout: render(await profiles.setRuntime(operands[0], operands[1] === 'latest' ? { channel: 'latest' } : { version: operands[1] }), parsed.json), code: 0 }
     if (action === 'run' && operands.length >= 1) return { stdout: render(await profiles.run(operands[0], operands.slice(1)), parsed.json), code: 0 }
     if (action === 'doctor' && operands.length === 1) return { stdout: render(await profiles.doctor(operands[0]), parsed.json), code: 0 }
+    if (action === 'export' && operands.length === 2) return { stdout: render(await bundles.export(operands[0], operands[1]), parsed.json), code: 0 }
+    if ((action === 'restore' || action === 'import') && (operands.length === 1 || operands.length === 2)) return { stdout: render(await bundles.restore(operands[0], { name: operands[1], mode: restoreMode }), parsed.json), code: 0 }
   }
   if (command === '-Sy' && operands.length === 0) {
     return { stdout: render(await packages.sync(), parsed.json), code: 0 }

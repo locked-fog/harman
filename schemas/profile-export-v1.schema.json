@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harman.local/schemas/profile-export-v1.schema.json",
+  "title": "Harman Profile export v1",
+  "type": "object",
+  "required": ["schemaVersion", "exportedProfile", "declaration", "packages", "resources", "runtimePolicy", "sourceLock", "sourceLockHash", "manifestHash"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "exportedProfile": { "type": "string", "minLength": 1 },
+    "declaration": { "type": "object" },
+    "packages": { "type": "array", "items": { "type": "object" } },
+    "resources": { "type": "array", "items": { "type": "object" } },
+    "runtimePolicy": { "type": "object" },
+    "resolvedRuntime": { "type": ["object", "null"] },
+    "sourceLock": { "type": "object" },
+    "sourceLockHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "manifestHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

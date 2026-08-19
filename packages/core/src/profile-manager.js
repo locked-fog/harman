@@ -245,6 +245,19 @@ export class ProfileManager {
     })).result
   }
 
+  async setRuntime(name, policy) {
+    const previous = (await this.show(name)).runtime
+    await this.runtimes.resolve(policy)
+    await this.stateStore.transaction({ action: 'profile.runtime', details: { name, policy } }, state => { state.profiles[name].runtime = policy })
+    try {
+      const lock = await this.materialize(name)
+      return { profile: name, previous, runtime: policy, lockHash: lock.lockHash }
+    } catch (error) {
+      await this.stateStore.transaction({ action: 'profile.runtime.rollback', details: { name, previous } }, state => { state.profiles[name].runtime = previous })
+      throw error
+    }
+  }
+
   async run(name, args = [], options = {}) {
     try { await access(this.bwrap, constants.X_OK) } catch { throw new ConflictError('isolated DSH launch unavailable: bwrap is missing') }
     await this.materialize(name)

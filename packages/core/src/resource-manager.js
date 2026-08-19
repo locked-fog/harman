@@ -28,7 +28,7 @@ async function pathKind(path) {
   }
 }
 
-async function hashPath(path, options = {}) {
+export async function fingerprintPath(path, options = {}) {
   const hash = createHash('sha256')
   async function visit(current, relative) {
     const info = await lstat(current)
@@ -103,7 +103,7 @@ export class ResourceManager {
         found.push({ ...candidate, status: 'rejected', reason: kind })
         continue
       }
-      const fingerprint = await hashPath(candidate.location, { metadataOnly: candidate.type === 'mcp' })
+      const fingerprint = await fingerprintPath(candidate.location, { metadataOnly: candidate.type === 'mcp' })
       found.push({ ...candidate, ownership: 'external', available: true, fingerprint, status: 'discovered' })
     }
     const transaction = await this.stateStore.transaction({ action: 'resource.scan', details: { count: found.length } }, state => {
@@ -149,7 +149,7 @@ export class ResourceManager {
     const kind = await pathKind(actual)
     if (!['file', 'directory'].includes(kind)) throw new ValidationError(`resource location is not a regular file or directory: ${actual}`)
     const id = options.id ?? `${type}/${slug(options.name ?? basename(actual).replace(/\.[^.]+$/, ''))}`
-    const fingerprint = await hashPath(actual, { metadataOnly: type === 'mcp' })
+    const fingerprint = await fingerprintPath(actual, { metadataOnly: type === 'mcp' })
     const transaction = await this.stateStore.transaction({ action: 'resource.register', details: { id, location: actual } }, state => addResource(state, {
       id, type, location: actual, ownership: 'external', scope: options.scope ?? 'other',
       source: 'register', fingerprint, displayName: options.name ?? id,
@@ -171,7 +171,7 @@ export class ResourceManager {
     try {
       await copyNoLinks(resource.location, stage)
       await rename(stage, target)
-      const fingerprint = await hashPath(target, { metadataOnly: resource.type === 'mcp' })
+      const fingerprint = await fingerprintPath(target, { metadataOnly: resource.type === 'mcp' })
       await this.stateStore.transaction({ action: 'resource.adopt', details: { id, target } }, state => {
         const current = state.resources[id]
         if (current === undefined) throw new NotFoundError(`resource ${id} disappeared during adoption`)

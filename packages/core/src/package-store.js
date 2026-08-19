@@ -110,7 +110,7 @@ export async function downloadVerifiedArtifact(url, expectedSha256, maxBytes = 1
   return bytes
 }
 
-async function makeReadOnly(root, options = {}) {
+export async function makeReadOnly(root, options = {}) {
   const { readdir } = await import('node:fs/promises')
   for (const entry of await readdir(root, { withFileTypes: true })) {
     const path = join(root, entry.name)

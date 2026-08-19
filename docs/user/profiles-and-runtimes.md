@@ -23,8 +23,13 @@ harman profile diff work renamed
 harman profile materialize work
 harman profile activate work
 harman profile deactivate work
+harman profile runtime work 0.1.0-rc.7
+harman profile runtime work latest
 harman profile run work --dump-config
 harman profile doctor work
+harman profile export work ./work.bundle
+harman profile restore ./work.bundle restored --mode strict
+harman profile restore ./work.bundle current --mode follow-latest
 harman --dry-run profile delete renamed
 harman --yes profile delete renamed
 ```
@@ -39,3 +44,10 @@ presets, and caches.
 `doctor` reports the declared Runtime policy, latest version, last resolved
 version/hash, manifest and lock presence, running state, and every Store link.
 An unresolved, breaking, or unvalidated Runtime prevents launch.
+
+Export bundles carry verified Package content and managed Resource copies for
+offline restoration. External files are never copied or adopted; restore
+requires their recorded paths and fingerprints to match. `strict` replays the
+last resolved Runtime exactly. `follow-latest` retains the channel policy and
+resolves the currently validated latest. Both modes report semantic lock
+equivalence and reject a modified manifest or object.
