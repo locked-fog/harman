@@ -105,6 +105,7 @@ export function createProfile(state, input) {
   state.profiles[name] = {
     name,
     dshHome: resolve(input.dshHome),
+    app: input.app ?? 'headless',
     packages: sortedUnique(input.packages ?? []),
     resources: sortedUnique(input.resources ?? []),
     runtime,
@@ -116,6 +117,8 @@ export function createProfile(state, input) {
     cordisPatch: input.cordisPatch ?? [],
     active: false,
     running: false,
+    runOwnerPid: null,
+    runStartedAt: null,
   }
   for (const resourceId of state.profiles[name].resources) {
     const resource = requireRecord(state.resources, resourceId, 'resource')

@@ -94,7 +94,7 @@ export class ProfileBundleManager {
         resources.push(record)
       }
       const declaration = {
-        packages: [...profile.packages], resources: [...profile.resources], runtime: profile.runtime,
+        packages: [...profile.packages], resources: [...profile.resources], app: profile.app, runtime: profile.runtime,
         lastResolvedRuntime: profile.lastResolvedRuntime, pluginConfig: profile.pluginConfig,
         promptOrder: profile.promptOrder, mcp: profile.mcp, models: profile.models, cordisPatch: profile.cordisPatch,
       }

@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto'
 import { gunzipSync } from 'node:zlib'
 import {
-  chmod, mkdir, readFile, rename, rm, stat, writeFile,
+  chmod, mkdir, readFile, readdir, rename, rm, stat, writeFile,
 } from 'node:fs/promises'
 import { dirname, join, posix, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -208,5 +208,27 @@ export class PackageStore {
       }
       throw error
     }
+  }
+
+  async garbageCollect(referencedHashes, options = {}) {
+    const retained = new Set(referencedHashes)
+    const objects = []
+    try {
+      for (const prefix of await readdir(this.objects)) {
+        const prefixPath = join(this.objects, prefix)
+        for (const hash of await readdir(prefixPath)) {
+          if (/^[a-f0-9]{64}$/.test(hash)) objects.push({ hash, path: join(prefixPath, hash) })
+        }
+      }
+    } catch (error) { if (error?.code !== 'ENOENT') throw error }
+    const candidates = objects.filter(object => !retained.has(object.hash)).sort((a, b) => a.hash.localeCompare(b.hash))
+    const plan = { retained: [...retained].sort(), remove: candidates.map(item => item.hash) }
+    if (options.dryRun) return { dryRun: true, plan }
+    if (!options.confirmed) throw new ConflictError('Store garbage collection requires --yes after reviewing impact', { plan })
+    for (const candidate of candidates) {
+      await makeRemovable(candidate.path)
+      await rm(candidate.path, { recursive: true, force: true })
+    }
+    return { dryRun: false, plan, removed: candidates.map(item => item.hash) }
   }
 }

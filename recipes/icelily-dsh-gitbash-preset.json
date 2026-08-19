@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "name": "@icelily/dsh-gitbash-preset",
+  "version": "0.1.2",
+  "sourceDateEpoch": 1755043200,
+  "source": {
+    "type": "npm-tgz",
+    "url": "https://registry.npmjs.org/@icelily/dsh-gitbash-preset/-/dsh-gitbash-preset-0.1.2.tgz",
+    "sha256": "e7bec1d675cb12c84a06025fb4660fbb28fa7e67aaf0f8d35ab92bbc001476c5"
+  },
+  "build": {
+    "network": false,
+    "timeoutMs": 120000,
+    "commands": [[
+      "tar", "--sort=name", "--mtime=@1755043200", "--owner=0", "--group=0", "--numeric-owner",
+      "--transform=s|^|package/|", "-czf", "/output/harman-output.tgz",
+      "LICENSE", "README.md", "agent-presets", "cordis.patch.yml", "lib", "package.json"
+    ]]
+  },
+  "outputArtifact": "harman-output.tgz"
+}

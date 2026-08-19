@@ -109,6 +109,29 @@ test('HTTP repository conditional request keeps validated cache on 304', async (
   }
 })
 
+test('repository network interruption preserves the last validated cache', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'harman-http-interrupted-'))
+  const good = JSON.stringify(index(7))
+  let interrupted = false
+  const server = createServer((_request, response) => {
+    if (!interrupted) { response.end(good); return }
+    response.writeHead(200, { 'content-type': 'application/json', 'content-length': good.length * 2 })
+    response.write(good.slice(0, 20))
+    response.destroy()
+  })
+  await new Promise(resolveServer => server.listen(0, '127.0.0.1', resolveServer))
+  try {
+    const address = server.address()
+    const repository = { id: 'flaky', url: `http://127.0.0.1:${address.port}/index.json`, priority: 0, enabled: true, etag: null, sequence: null }
+    const first = await syncRepository(root, repository)
+    interrupted = true
+    await assert.rejects(syncRepository(root, { ...repository, sequence: 7, indexHash: first.indexHash }))
+    assert.equal((await readRepositoryCache(root, 'flaky')).sequence, 7)
+  } finally {
+    await new Promise(resolveServer => server.close(resolveServer))
+  }
+})
+
 test('deterministic solver resolves dependencies, DSH compatibility, holds, and conflicts', () => {
   const repository = { id: 'main', priority: 10, enabled: true }
   const catalogIndex = index()
@@ -155,6 +178,27 @@ test('Store verifies artifact and identity, imports immutably, and reuses by has
   assert.equal(reused.reused, true)
   await assert.rejects(store.importArtifact({ name: 'other', version: '1.0.0', url: pathToFileURL(archivePath).href, sha256: hash }), ConflictError)
   await assert.rejects(store.importArtifact({ name: 'demo', version: '1.0.0', url: pathToFileURL(archivePath).href, sha256: '0'.repeat(64) }), ConflictError)
+})
+
+test('Store garbage collection is previewed, confirmed, and retains every referenced object', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'harman-store-gc-'))
+  const store = new PackageStore(join(root, 'store'))
+  async function importOne(name) {
+    const archive = tar([{ name: 'package/package.json', body: JSON.stringify({ name, version: '1.0.0' }) }])
+    const path = join(root, `${name}.tgz`)
+    await writeFile(path, archive)
+    const hash = createHash('sha256').update(archive).digest('hex')
+    const imported = await store.importArtifact({ name, version: '1.0.0', url: pathToFileURL(path).href, sha256: hash })
+    return { hash, path: imported.path }
+  }
+  const retained = await importOne('retained')
+  const orphan = await importOne('orphan')
+  const preview = await store.garbageCollect([retained.hash], { dryRun: true })
+  assert.deepEqual(preview.plan.remove, [orphan.hash])
+  await assert.rejects(store.garbageCollect([retained.hash]), ConflictError)
+  await store.garbageCollect([retained.hash], { confirmed: true })
+  assert.equal((await stat(retained.path)).isDirectory(), true)
+  await assert.rejects(stat(orphan.path), error => error.code === 'ENOENT')
 })
 
 test('invalid repository index fails before cache publication', () => {

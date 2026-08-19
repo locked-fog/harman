@@ -92,6 +92,7 @@ export function solvePackages(sources, requests, options = {}) {
     repository: candidate.repository.id,
     artifact: candidate.entry.artifact,
     dependencies: candidate.entry.dependencies ?? {},
+    resources: candidate.entry.resources ?? [],
     reason: requests.some(request => request.name === candidate.entry.name) ? 'explicit' : 'dependency',
     dsh: candidate.entry.dsh ?? '*',
   }))

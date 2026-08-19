@@ -46,6 +46,6 @@ try {
     process.exitCode = 2
   }
 } catch (error) {
-  process.stderr.write(`harman-repo: ${error.message}\n`)
+  process.stderr.write(`harman-repo: ${error.message}${error.details === undefined ? '' : ` ${JSON.stringify(error.details)}`}\n`)
   process.exitCode = 1
 }

@@ -20,6 +20,19 @@
             "version": { "type": "string" },
             "description": { "type": "string" },
             "dependencies": { "type": "object", "additionalProperties": { "type": "string" } },
+            "resources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "type", "path"],
+                "properties": {
+                  "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*/[A-Za-z0-9._-]+$" },
+                  "type": { "type": "string" },
+                  "path": { "type": "string" },
+                  "displayName": { "type": "string" }
+                }
+              }
+            },
             "dsh": { "type": "string" },
             "platform": { "type": "array", "items": { "type": "string" } },
             "arch": { "type": "array", "items": { "type": "string" } },
@@ -30,6 +43,34 @@
                 "url": { "type": "string" },
                 "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
                 "signatures": { "$ref": "#/$defs/signatures" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "runtimes": {
+      "type": "object",
+      "properties": {
+        "dsh": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["version", "official", "artifact", "executablePath"],
+            "properties": {
+              "version": { "type": "string" },
+              "official": { "const": true },
+              "source": { "type": "string" },
+              "executablePath": { "type": "string" },
+              "launcherArgs": { "type": "array", "items": { "type": "string" } },
+              "artifact": {
+                "type": "object",
+                "required": ["url", "sha256"],
+                "properties": {
+                  "url": { "type": "string" },
+                  "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+                  "signatures": { "$ref": "#/$defs/signatures" }
+                }
               }
             }
           }

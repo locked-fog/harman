@@ -19,6 +19,7 @@ function packageTar(name, version) {
     ['package/package.json', JSON.stringify({ name, version, type: 'module', dsh: { bundle: { patch: './cordis.patch.yml' } } })],
     ['package/cordis.patch.yml', '[]\n'],
     ['package/lib/index.js', `export const version = ${JSON.stringify(version)}\n`],
+    ['package/skills/demo/SKILL.md', `# demo ${version}\n`],
   ]
   const chunks = []
   for (const [path, text] of files) {
@@ -67,6 +68,7 @@ async function fixture() {
         version,
         description: `demo ${version}`,
         dependencies: {},
+        resources: [{ id: 'skill/demo', type: 'skill', path: 'skills/demo', displayName: 'Demo skill' }],
         artifact: { url: `./${filename}`, sha256: createHash('sha256').update(bytes).digest('hex') },
       })
     }
@@ -112,6 +114,9 @@ test('pacman-style sync/search/dry-run/install/query/remove uses verified Store 
   assert.equal(query.code, 0)
   assert.equal(JSON.parse(query.stdout).contentHash.length, 64)
   assert.ok(!(await allNames(home)).includes('pnpm-lock.yaml'))
+  const resources = await run(home, ['resource', 'show', 'skill/demo'])
+  assert.equal(resources.code, 0, resources.stderr)
+  assert.equal(JSON.parse(resources.stdout).ownership, 'package')
 
   const refused = await run(home, ['-R', 'demo'])
   assert.equal(refused.code, 4)
@@ -121,6 +126,7 @@ test('pacman-style sync/search/dry-run/install/query/remove uses verified Store 
   const removed = await run(home, ['--yes', '-R', 'demo'])
   assert.equal(removed.code, 0, removed.stderr)
   assert.deepEqual(JSON.parse(removed.stdout).removed, ['demo@1.0.0'])
+  assert.equal((await run(home, ['resource', 'show', 'skill/demo'])).code, 5)
 })
 
 test('-Syu previews without mutation and upgrades explicit package after sync', async () => {
@@ -128,6 +134,7 @@ test('-Syu previews without mutation and upgrades explicit package after sync', 
   assert.equal((await run(home, ['repo', 'add', 'main', pathToFileURL(join(repositoryRoot, 'index.json')).href])).code, 0)
   assert.equal((await run(home, ['-Sy'])).code, 0)
   assert.equal((await run(home, ['-S', 'demo'])).code, 0)
+  assert.equal((await run(home, ['profile', 'create', 'upgrade-target', '--config', new URL('../../../tests/fixtures/profile-demo.json', import.meta.url).pathname])).code, 0)
   await publish(2, ['1.0.0', '1.1.0'])
 
   const beforeSyncPreview = await run(home, ['--dry-run', '-Syu'])
@@ -139,6 +146,9 @@ test('-Syu previews without mutation and upgrades explicit package after sync', 
   assert.deepEqual(JSON.parse(upgraded.stdout).upgrade.changes, [{ from: 'demo@1.0.0', to: 'demo@1.1.0' }])
   const query = await run(home, ['-Qi', 'demo'])
   assert.equal(JSON.parse(query.stdout).version, '1.1.0')
+  const profile = await run(home, ['profile', 'show', 'upgrade-target'])
+  assert.deepEqual(JSON.parse(profile.stdout).packages, ['demo@1.1.0'])
+  assert.equal((await run(home, ['-Qi', 'demo@1.0.0'])).code, 5)
 })
 
 test('-Syu artifact verification failure preserves the installed package', async () => {

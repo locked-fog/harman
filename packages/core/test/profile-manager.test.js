@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { chmod, mkdir, mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
@@ -62,6 +62,48 @@ test('literal secrets are rejected while secret references remain declarative', 
   assert.equal(created.lock.config.models.apiKey.secretRef, 'env:MODEL_KEY')
 })
 
+test('materialization removes attributable stale stages and read-only backups', async () => {
+  const { home, manager } = await fixture()
+  await manager.create({ name: 'cleanup' })
+  const root = join(home, 'profiles', 'cleanup')
+  for (const name of ['.dsh-home.stage-interrupted', '.dsh-home.backup-interrupted']) {
+    const directory = join(root, name, 'nested')
+    await mkdir(directory, { recursive: true })
+    await writeFile(join(directory, 'readonly'), 'stale')
+    await chmod(join(directory, 'readonly'), 0o444)
+    await chmod(directory, 0o555)
+    await chmod(join(root, name), 0o555)
+  }
+  await manager.materialize('cleanup')
+  assert.deepEqual((await readdir(root)).filter(name => name.startsWith('.dsh-home.')), [])
+})
+
+test('materialization replaces only Harman-owned views and preserves private DSH state', async () => {
+  const { manager } = await fixture()
+  const created = await manager.create({ name: 'durable' })
+  await writeFile(join(created.profile.dshHome, 'settings.yaml'), 'theme: dark\n')
+  await mkdir(join(created.profile.dshHome, 'sessions'), { recursive: true })
+  await writeFile(join(created.profile.dshHome, 'sessions', 'one.jsonl'), '{"event":"kept"}\n')
+  await manager.materialize('durable')
+  assert.equal(await readFile(join(created.profile.dshHome, 'settings.yaml'), 'utf8'), 'theme: dark\n')
+  assert.equal(await readFile(join(created.profile.dshHome, 'sessions', 'one.jsonl'), 'utf8'), '{"event":"kept"}\n')
+  assert.deepEqual(JSON.parse(await readFile(join(created.profile.dshHome, '.harman-managed.json'))).paths, ['.harman-managed.json', 'harman.lock.json', 'profiles/harman'])
+})
+
+test('materialization recovers a run marker whose owner process no longer exists', async () => {
+  const { manager, store } = await fixture()
+  await manager.create({ name: 'crashed' })
+  await store.transaction({ action: 'fixture.crashed-run' }, state => {
+    state.profiles.crashed.running = true
+    state.profiles.crashed.runOwnerPid = 2_147_483_647
+    state.profiles.crashed.runStartedAt = '2026-08-19T00:00:00Z'
+  })
+  await manager.materialize('crashed')
+  const recovered = await manager.show('crashed')
+  assert.equal(recovered.running, false)
+  assert.equal(recovered.runOwnerPid, null)
+})
+
 test('two Profiles run concurrently with private state and read-only access outside their own DSH_HOME', async () => {
   const { manager, root } = await fixture()
   const a = await manager.create({ name: 'a' })
@@ -96,4 +138,27 @@ test('bound external instructions are composed without modifying their source', 
   const created = await manager.create({ name: 'with-resource', resources: ['agents/project'] })
   assert.match(await readFile(join(created.profile.dshHome, 'AGENTS.md'), 'utf8'), /external instruction/)
   assert.deepEqual(await readFile(external), before)
+})
+
+test('Profile composition orders instructions and materializes plugin, MCP, and model configuration without literals', async () => {
+  const { manager, root, store } = await fixture()
+  const first = join(root, 'first.md'); const second = join(root, 'second.md')
+  await writeFile(first, 'first\n'); await writeFile(second, 'second\n')
+  const resources = new ResourceManager(store)
+  await resources.register('prompt', first, { id: 'prompt/first' })
+  await resources.register('agents', second, { id: 'agents/second' })
+  const created = await manager.create({
+    name: 'composed', resources: ['prompt/first', 'agents/second'], promptOrder: ['agents/second', 'prompt/first'],
+    pluginConfig: { 'agent-default-model': { provider: 'test', model: 'test-model' } },
+    mcp: { local: { transport: 'stdio', command: 'true', args: [] } },
+    models: { 'llm-deepseek': { apiKeyEnv: 'MODEL_KEY' } },
+  })
+  const instructions = await readFile(join(created.profile.dshHome, 'AGENTS.md'), 'utf8')
+  assert.ok(instructions.indexOf('second') < instructions.indexOf('first'))
+  const patch = JSON.parse(await readFile(join(created.profile.dshHome, 'profiles', 'harman', 'cordis.patch.yml')))
+  assert.deepEqual(patch.find(item => item.id === 'agent-default-model').config, { provider: 'test', model: 'test-model' })
+  assert.equal(patch.flatMap(item => item.insert ?? []).find(item => item.id === 'harman-mcp-local').config.serverName, 'local')
+  assert.equal(patch.find(item => item.id === 'settings').config.path, join(created.profile.dshHome, 'settings.json'))
+  assert.deepEqual(JSON.parse(await readFile(join(created.profile.dshHome, 'settings.json'))), { 'llm-deepseek': { apiKeyEnv: 'MODEL_KEY' } })
+  await assert.rejects(manager.create({ name: 'conflict', cordisPatch: [{ id: 'settings', config: {} }], models: { x: {} } }), /conflict/)
 })

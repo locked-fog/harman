@@ -54,13 +54,15 @@ export function explainProfile(state, name) {
 
 export function packageImpact(state, id, operation = 'remove') {
   const explanation = explainPackage(state, id)
+  const blockingResourceProfiles = explanation.providesResources.flatMap(resourceId => (state.resources[resourceId]?.boundProfiles ?? []).map(profile => ({ resource: resourceId, profile })))
   return {
     operation,
     target: id,
     affectedProfiles: explanation.profiles,
     affectedResources: explanation.providesResources,
     blockingDependents: explanation.dependedOnBy,
-    allowed: explanation.profiles.length === 0 && explanation.providesResources.length === 0 && explanation.dependedOnBy.length === 0,
+    blockingResourceProfiles,
+    allowed: explanation.profiles.length === 0 && blockingResourceProfiles.length === 0 && explanation.dependedOnBy.length === 0,
   }
 }
 

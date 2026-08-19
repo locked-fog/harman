@@ -14,8 +14,8 @@ export function validateRecipe(recipe) {
   for (const key of ['name', 'version']) {
     if (typeof recipe[key] !== 'string' || recipe[key] === '') throw new ValidationError(`recipe ${key} is required`)
   }
-  if (recipe.source?.type !== 'npm-tgz' || typeof recipe.source.url !== 'string' || !/^[a-f0-9]{64}$/.test(recipe.source.sha256 ?? '')) {
-    throw new ValidationError('recipe source must be a hash-pinned npm-tgz')
+  if (!['npm-tgz', 'github-release', 'git-archive'].includes(recipe.source?.type) || typeof recipe.source.url !== 'string' || !/^[a-f0-9]{64}$/.test(recipe.source.sha256 ?? '')) {
+    throw new ValidationError('recipe source must be a supported hash-pinned archive')
   }
   if (!Array.isArray(recipe.build?.commands) || recipe.build.commands.length === 0) throw new ValidationError('recipe build.commands is required')
   for (const command of recipe.build.commands) {
@@ -68,7 +68,9 @@ export class RecipeBuilder {
     }
     const buildRoot = join(this.root, 'builds', randomUUID())
     const sourceRoot = join(buildRoot, 'source')
+    const outputRoot = join(buildRoot, 'output')
     await mkdir(sourceRoot, { recursive: true, mode: 0o700 })
+    await mkdir(outputRoot, { recursive: true, mode: 0o700 })
     const logs = []
     let succeeded = false
     try {
@@ -84,7 +86,7 @@ export class RecipeBuilder {
           '--symlink', 'usr/lib', '/lib64',
           '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp',
           '--dir', '/home', '--dir', '/nonexistent',
-          '--bind', sourceRoot, '/work', '--chdir', '/work',
+          '--bind', sourceRoot, '/work', '--bind', outputRoot, '/output', '--chdir', '/work',
           '--clearenv', '--setenv', 'PATH', '/usr/bin:/bin',
           '--setenv', 'HOME', '/nonexistent', '--setenv', 'SOURCE_DATE_EPOCH', String(recipe.sourceDateEpoch ?? 0),
           '--', ...command,
@@ -93,8 +95,10 @@ export class RecipeBuilder {
         logs.push({ command, ...result })
         if (result.code !== 0) throw new ConflictError('isolated recipe command failed', { command, code: result.code, signal: result.signal, stderr: result.stderr })
       }
-      const artifactPath = resolve(sourceRoot, recipe.outputArtifact)
-      if (artifactPath !== sourceRoot && !artifactPath.startsWith(sourceRoot + sep)) throw new ValidationError('recipe outputArtifact escapes build root')
+      if (recipe.outputArtifact.startsWith('/') || recipe.outputArtifact.split('/').includes('..')) throw new ValidationError('recipe outputArtifact escapes output root')
+      let artifactPath = resolve(outputRoot, recipe.outputArtifact)
+      try { await access(artifactPath) } catch { artifactPath = resolve(sourceRoot, recipe.outputArtifact) }
+      if (!(artifactPath === outputRoot || artifactPath.startsWith(outputRoot + sep) || artifactPath === sourceRoot || artifactPath.startsWith(sourceRoot + sep))) throw new ValidationError('recipe outputArtifact escapes build root')
       const artifactBytes = await readFile(artifactPath)
       const artifactSha256 = (await import('node:crypto')).createHash('sha256').update(artifactBytes).digest('hex')
       const imported = await this.store.importArtifact({

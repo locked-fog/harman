@@ -1,0 +1,3 @@
+- insert:
+    - id: harman
+      name: '@harman/dsh-bridge'

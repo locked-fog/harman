@@ -36,6 +36,34 @@ export function validateRepositoryIndex(index) {
       }
       if (entry.artifact.signatures !== undefined && !Array.isArray(entry.artifact.signatures)) throw new ValidationError(`package ${name}@${entry.version} artifact signatures are invalid`)
       if (entry.dependencies !== undefined) object(entry.dependencies, `package ${name}@${entry.version} dependencies`)
+      if (entry.resources !== undefined) {
+        if (!Array.isArray(entry.resources)) throw new ValidationError(`package ${name}@${entry.version} resources must be an array`)
+        const resourceIds = new Set()
+        for (const resource of entry.resources) {
+          object(resource, `package ${name}@${entry.version} Resource`)
+          if (typeof resource.id !== 'string' || !/^[a-z][a-z0-9-]*\/[A-Za-z0-9._-]+$/.test(resource.id)) throw new ValidationError(`package ${name}@${entry.version} Resource id is invalid`)
+          if (resourceIds.has(resource.id)) throw new ValidationError(`package ${name}@${entry.version} repeats Resource ${resource.id}`)
+          resourceIds.add(resource.id)
+          if (typeof resource.path !== 'string' || resource.path === '' || resource.path.startsWith('/') || resource.path.split('/').includes('..')) throw new ValidationError(`package ${name}@${entry.version} Resource path is unsafe`)
+          if (typeof resource.type !== 'string' || resource.type !== resource.id.slice(0, resource.id.indexOf('/'))) throw new ValidationError(`package ${name}@${entry.version} Resource type is inconsistent`)
+        }
+      }
+    }
+  }
+  if (index.runtimes !== undefined) {
+    object(index.runtimes, 'repository runtimes')
+    for (const [name, versions] of Object.entries(index.runtimes)) {
+      if (name !== 'dsh' || !Array.isArray(versions)) throw new ValidationError(`runtime channel ${name} is invalid`)
+      const seen = new Set()
+      for (const entry of versions) {
+        object(entry, 'DSH Runtime entry')
+        parseVersion(entry.version)
+        if (seen.has(entry.version)) throw new ValidationError(`DSH Runtime repeats version ${entry.version}`)
+        seen.add(entry.version)
+        if (entry.official !== true) throw new ValidationError(`DSH Runtime ${entry.version} must declare official provenance`)
+        if (typeof entry.artifact?.url !== 'string' || !/^[a-f0-9]{64}$/.test(entry.artifact?.sha256 ?? '')) throw new ValidationError(`DSH Runtime ${entry.version} artifact is invalid`)
+        if (typeof entry.executablePath !== 'string' || entry.executablePath === '' || entry.executablePath.startsWith('/') || entry.executablePath.split('/').includes('..')) throw new ValidationError(`DSH Runtime ${entry.version} executablePath is unsafe`)
+      }
     }
   }
   return index

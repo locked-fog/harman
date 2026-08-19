@@ -15,7 +15,7 @@
       "required": ["type", "url", "sha256"],
       "additionalProperties": false,
       "properties": {
-        "type": { "const": "npm-tgz" },
+        "type": { "enum": ["npm-tgz", "github-release", "git-archive"] },
         "url": { "type": "string", "minLength": 1 },
         "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
       }

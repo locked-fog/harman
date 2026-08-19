@@ -6,3 +6,9 @@ immutable upstream archive and include its SHA-256. CI invokes
 pass the Store/DSH compatibility tests, and have provenance and an SPDX SBOM.
 
 Private signing keys never belong in this directory or repository.
+
+Build commands run with the extracted, writable source at `/work` and a
+separate writable artifact directory at `/output`. `outputArtifact` is a safe
+relative path below `/output`; legacy recipes that place the same relative path
+under `/work` remain readable. Network is disabled unless a reviewed recipe
+opts in explicitly.

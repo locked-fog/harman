@@ -128,12 +128,14 @@ export function validateState(state, options = {}) {
       throw new ValidationError(`invalid profile name ${name}`)
     }
     nonEmpty(profile.dshHome, `profile ${name} dshHome`)
+    if (!['headless', 'web'].includes(profile.app ?? 'headless')) throw new ValidationError(`profile ${name} app must be headless or web`)
     if (!isAbsolute(profile.dshHome)) throw new ValidationError(`profile ${name} dshHome must be absolute`)
     uniqueStrings(profile.packages, `profile ${name} packages`)
     uniqueStrings(profile.resources, `profile ${name} resources`)
     uniqueStrings(profile.promptOrder, `profile ${name} promptOrder`)
     if (typeof profile.active !== 'boolean') throw new ValidationError(`profile ${name} active must be boolean`)
     if (profile.running !== undefined && typeof profile.running !== 'boolean') throw new ValidationError(`profile ${name} running must be boolean`)
+    if (profile.runOwnerPid !== undefined && profile.runOwnerPid !== null && (!Number.isInteger(profile.runOwnerPid) || profile.runOwnerPid <= 0)) throw new ValidationError(`profile ${name} runOwnerPid must be a positive process id or null`)
     objectRecord(profile.runtime, `profile ${name} runtime`)
     const hasLatest = profile.runtime.channel === 'latest' && profile.runtime.version === undefined
     const hasPin = typeof profile.runtime.version === 'string' && profile.runtime.version !== '' && profile.runtime.channel === undefined

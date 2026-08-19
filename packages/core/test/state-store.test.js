@@ -114,6 +114,26 @@ test('an interruption after journal preserves intent as aborted and keeps old st
   assert.equal((await recovered.read()).revision, 0)
 })
 
+test('simulated ENOSPC before publication preserves the previous state and recovers intent', async () => {
+  let tripped = false
+  const { root, store } = await fixture({
+    failpoint(stage) {
+      if (stage === 'afterJournal' && !tripped) {
+        tripped = true
+        const error = new Error('simulated disk full')
+        error.code = 'ENOSPC'
+        throw error
+      }
+    },
+  })
+  await assert.rejects(store.transaction({ action: 'disk-full' }, draft => addPackage(draft, {
+    name: 'uncommitted', version: '1.0.0', contentHash: 'e'.repeat(64),
+  })), error => error.code === 'ENOSPC')
+  assert.equal((await store.read()).revision, 0)
+  const recovered = new StateStore(root); await recovered.initialize()
+  assert.equal((await recovered.read()).packages['uncommitted@1.0.0'], undefined)
+})
+
 test('an interruption after publish is recognized as committed during recovery', async () => {
   let tripped = false
   const { root, store } = await fixture({

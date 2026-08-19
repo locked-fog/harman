@@ -47,7 +47,7 @@ async function sourceFixture() {
   const managedSource = join(root, 'managed.md'); await writeFile(managedSource, 'managed content\n')
   await resources.register('prompt', managedSource, { id: 'prompt/managed' }); await resources.adopt('prompt/managed', { confirmed: true })
   const profiles = new ProfileManager(store, { runtimes })
-  await profiles.create({ name: 'portable', packages: ['portable@1.0.0'], resources: ['prompt/external', 'prompt/managed'], models: { apiKey: { secretRef: 'env:MODEL_KEY' } } })
+  await profiles.create({ name: 'portable', app: 'web', packages: ['portable@1.0.0'], resources: ['prompt/external', 'prompt/managed'], models: { apiKey: { secretRef: 'env:MODEL_KEY' } } })
   assert.equal((await profiles.run('portable', ['--dump-config'])).code, 0)
   const bundle = join(root, 'bundle'); await new ProfileBundleManager(store, { profiles }).export('portable', bundle)
   return { root, store, bundle, external }
@@ -59,6 +59,7 @@ test('strict offline restore reconstructs Package, managed Resource, lock identi
   const profiles = new ProfileManager(target, { runtimes }); const result = await new ProfileBundleManager(target, { profiles }).restore(bundle, { name: 'restored', mode: 'strict' })
   assert.equal(result.equivalent, true)
   assert.equal((await profiles.show('restored')).runtime.version, '0.1.0-rc.7')
+  assert.equal((await profiles.show('restored')).app, 'web')
   const state = await target.read(); assert.ok(state.packages['portable@1.0.0']); assert.equal(state.resources['prompt/external'].ownership, 'external')
   assert.equal(await readFile(external, 'utf8'), 'external stays external\n')
   assert.equal(await readFile(state.resources['prompt/managed'].location, 'utf8'), 'managed content\n')

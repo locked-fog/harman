@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import {
-  addPackage, addRepository, packageId, removePackage, removeRepository,
+  addPackage, addRepository, addResource, packageId, removePackage, removeRepository, removeResource,
 } from './domain.js'
 import { ConflictError, NotFoundError, ValidationError } from './errors.js'
 import { packageImpact } from './graph.js'
@@ -11,6 +11,7 @@ import {
 import { solvePackages } from './solver.js'
 import { RecipeBuilder } from './recipe-builder.js'
 import { publicKeyId, verifyArtifactTrust, verifyIndexTrust } from './trust.js'
+import { ProfileManager } from './profile-manager.js'
 
 function parseRequest(spec) {
   if (typeof spec !== 'string' || spec === '') throw new ValidationError('package request is empty')
@@ -20,10 +21,11 @@ function parseRequest(spec) {
 }
 
 export class PackageManager {
-  constructor(stateStore) {
+  constructor(stateStore, options = {}) {
     this.stateStore = stateStore
     this.store = new PackageStore(join(stateStore.root, 'store'))
     this.recipes = new RecipeBuilder(stateStore.root, { store: this.store })
+    this.profiles = options.profiles ?? new ProfileManager(stateStore)
   }
 
   async addRepository(input) {
@@ -123,6 +125,34 @@ export class PackageManager {
     return this.recipes.build(recipe, options)
   }
 
+  async installRecipe(recipe, options = {}) {
+    const state = await this.stateStore.read()
+    const id = packageId(recipe.name, recipe.version)
+    if (state.packages[id] !== undefined) throw new ConflictError(`package ${id} is already installed`)
+    if (options.dryRun) return { dryRun: true, plan: { id, source: recipe.source, build: recipe.build, reason: 'explicit' } }
+    const built = await this.buildRecipe(recipe, options)
+    const transaction = await this.stateStore.transaction({ action: 'package.install.recipe', details: { id, artifactSha256: built.artifactSha256 } }, draft => addPackage(draft, {
+      name: recipe.name, version: recipe.version, contentHash: built.artifactSha256,
+      source: `recipe:${recipe.recipeRevision ?? 'local'}`, reason: 'explicit', dependencies: [],
+    }))
+    return { dryRun: false, package: transaction.result, build: built }
+  }
+
+  async orphans() {
+    const state = await this.stateStore.read()
+    const referenced = new Set(Object.values(state.packages).flatMap(pkg => pkg.dependencies))
+    for (const profile of Object.values(state.profiles)) for (const id of profile.packages) referenced.add(id)
+    return Object.values(state.packages).filter(pkg => pkg.reason === 'dependency' && !referenced.has(pkg.id)).sort((a, b) => a.id.localeCompare(b.id))
+  }
+
+  async collectStore(options = {}) {
+    const state = await this.stateStore.read()
+    return this.store.garbageCollect([
+      ...Object.values(state.packages).map(pkg => pkg.contentHash),
+      ...Object.values(state.runtimes).map(runtime => runtime.contentHash),
+    ], options)
+  }
+
   async planInstall(specs, options = {}) {
     const requests = specs.map(parseRequest)
     const sources = await this.sources()
@@ -148,6 +178,14 @@ export class PackageManager {
         name: pkg.name, version: pkg.version, url: pkg.artifact.url, sha256: pkg.artifact.sha256,
       }))
     }
+    for (const pkg of plan.packages) {
+      const importedPackage = imported.get(packageId(pkg.name, pkg.version))
+      for (const resource of pkg.resources ?? []) {
+        if (!importedPackage.manifest.files.some(file => file.path === resource.path || file.path.startsWith(`${resource.path}/`))) {
+          throw new ConflictError(`package ${pkg.name}@${pkg.version} Resource ${resource.id} is absent from the verified artifact`)
+        }
+      }
+    }
     const idByName = new Map(plan.packages.map(pkg => [pkg.name, packageId(pkg.name, pkg.version)]))
     const result = await this.stateStore.transaction({ action: 'package.install', details: { requests: specs, packages: plan.packages.map(pkg => `${pkg.name}@${pkg.version}`) } }, state => {
       const installed = []
@@ -167,6 +205,20 @@ export class PackageManager {
           dependencies: Object.keys(pkg.dependencies).map(name => idByName.get(name)),
         })
         installed.push(id)
+      }
+      for (const pkg of plan.packages) {
+        const id = packageId(pkg.name, pkg.version)
+        for (const resource of pkg.resources ?? []) {
+          if (state.resources[resource.id] !== undefined) {
+            if (state.resources[resource.id].packageId !== id) throw new ConflictError(`Resource ${resource.id} is already provided by another owner`)
+            continue
+          }
+          addResource(state, {
+            ...resource, ownership: 'package', packageId: id,
+            location: join(this.store.objectPath(state.packages[id].contentHash), resource.path),
+            source: `${id}:${resource.path}`,
+          })
+        }
       }
       return installed
     })
@@ -197,7 +249,10 @@ export class PackageManager {
     const impacts = ids.map(id => packageImpact(state, id))
     if (options.dryRun) return { dryRun: true, impacts }
     if (!options.confirmed) throw new ConflictError('package removal requires --yes after reviewing impact', { impacts })
-    const result = await this.stateStore.transaction({ action: 'package.remove', details: { packages: ids } }, draft => ids.map(id => removePackage(draft, id).id))
+    const result = await this.stateStore.transaction({ action: 'package.remove', details: { packages: ids } }, draft => ids.map(id => {
+      for (const resourceId of [...draft.packages[id].providesResources]) removeResource(draft, resourceId)
+      return removePackage(draft, id).id
+    }))
     return { dryRun: false, removed: result.result, impacts }
   }
 
@@ -215,7 +270,17 @@ export class PackageManager {
         name: pkg.name, version: pkg.version, url: pkg.artifact.url, sha256: pkg.artifact.sha256,
       }))
     }
+    for (const pkg of plan.packages) {
+      const importedPackage = imported.get(packageId(pkg.name, pkg.version))
+      for (const resource of pkg.resources ?? []) {
+        if (!importedPackage.manifest.files.some(file => file.path === resource.path || file.path.startsWith(`${resource.path}/`))) {
+          throw new ConflictError(`package ${pkg.name}@${pkg.version} Resource ${resource.id} is absent from the verified artifact`)
+        }
+      }
+    }
     const idByName = new Map(plan.packages.map(pkg => [pkg.name, packageId(pkg.name, pkg.version)]))
+    const planById = new Map(plan.packages.map(pkg => [packageId(pkg.name, pkg.version), pkg]))
+    const affectedProfiles = [...new Set(changes.flatMap(change => Object.values(before.profiles).filter(profile => profile.packages.includes(change.from)).map(profile => profile.name)))].sort()
     const transaction = await this.stateStore.transaction({ action: 'package.upgrade', details: { changes } }, state => {
       const installed = []
       const retained = []
@@ -231,15 +296,46 @@ export class PackageManager {
         }
       }
       for (const change of changes) {
-        try {
-          removePackage(state, change.from)
-        } catch (error) {
-          if (!(error instanceof ConflictError)) throw error
-          retained.push({ id: change.from, reason: error.details })
+        const oldPackage = state.packages[change.from]
+        const nextPackage = state.packages[change.to]
+        const nextDeclarations = new Map((planById.get(change.to).resources ?? []).map(resource => [resource.id, resource]))
+        for (const profile of Object.values(state.profiles)) profile.packages = profile.packages.map(id => id === change.from ? change.to : id).sort()
+        for (const candidate of Object.values(state.packages)) candidate.dependencies = candidate.dependencies.map(id => id === change.from ? change.to : id).sort()
+        for (const resource of Object.values(state.resources).filter(item => item.packageId === change.from)) {
+          const declaration = nextDeclarations.get(resource.id)
+          if (declaration === undefined) { removeResource(state, resource.id); continue }
+          resource.packageId = change.to
+          resource.location = join(this.store.objectPath(nextPackage.contentHash), declaration.path)
+          resource.type = declaration.type
+          resource.displayName = declaration.displayName ?? resource.id
+          resource.source = `${change.to}:${declaration.path}`
+          nextPackage.providesResources = [...new Set([...nextPackage.providesResources, resource.id])].sort()
+          nextDeclarations.delete(resource.id)
         }
+        for (const declaration of nextDeclarations.values()) {
+          if (state.resources[declaration.id] !== undefined) throw new ConflictError(`Resource ${declaration.id} is already provided by another owner`)
+          addResource(state, {
+            ...declaration, ownership: 'package', packageId: change.to,
+            location: join(this.store.objectPath(nextPackage.contentHash), declaration.path),
+            source: `${change.to}:${declaration.path}`,
+          })
+        }
+        oldPackage.providesResources = []
+        removePackage(state, change.from)
       }
-      return { installed, retained }
+      return { installed, retained, affectedProfiles }
     })
+    try {
+      for (const name of affectedProfiles) await this.profiles.materialize(name)
+    } catch (error) {
+      await this.stateStore.transaction({ action: 'package.upgrade.rollback', details: { changes, cause: error.message } }, state => {
+        const revision = state.revision
+        const audit = state.audit
+        Object.assign(state, structuredClone(before), { revision, audit })
+      })
+      for (const name of affectedProfiles) await this.profiles.materialize(name)
+      throw error
+    }
     return { dryRun: false, changes, ...transaction.result, store: Object.fromEntries(imported) }
   }
 }
