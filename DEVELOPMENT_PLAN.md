@@ -10,9 +10,10 @@
 2. 所有测试、构建验证、运行验证、性能验证、系统集成测试和源码分析均在指定测试机完成。本地仅进行源码/文档编写、Git 版本管理以及测试证据归档。
 3. 涉及测试机系统包、`/etc`、`/usr`、systemd、内核或其他系统级状态变更前，必须验证 Snapper 配置并创建恢复快照。
 4. 在开发正式开始前，必须取得明确的测试机 SSH host/alias；所有 SSH/SCP 调用显式使用 `/home/Locked_Fog/.ssh/config`、批处理认证和主机密钥验证。
-5. 优先 fork DeepSeek Harness（下称 DSH），将修改限制在插件、包、资源、Profile 与配置组合相关边界；除非远程源码分析证明不可避免，不修改 Agent Runtime、Cordis 插件接口、现有插件 ABI、Agent Loop、Tool/Skill/MCP Runtime、Session 语义。
+5. 优先使用官方原版 DeepSeek Harness（下称 DSH），在外部实现 Harman 控制层，通过版本化 adapter 和普通 bridge plugin 集成；只有公开扩展边界无法满足完整需求时，才维护最小、可上游化的薄 fork。不得把 Harman 管理核心并入 DSH fork。
 6. 不建设类似 npm 的公共中心化 Registry；npm/pnpm 只作为兼容上游来源与构建工具，不作为最终用户机器上的依赖解析后端。
-7. 本轮只产出并提交开发方案，不创建业务源码、测试源码、脚手架、CI 配置或远程构建产物。
+7. DSH Runtime 默认跟随官方 `latest`；非破坏性发布通过兼容合同后直接更新默认 Runtime，只有破坏性变化才触发 adapter/bridge 或薄 fork 开发。Profile 可以显式固定 DSH 精确版本。
+8. DSH Web 可视化设置与管理属于正式交付范围；其写操作必须经过 Harman 的鉴权、事务、影响分析与审计接口，浏览器端不得直接修改 Store 或 Profile 文件。
 
 项目只有在第 13 节全部验收项通过并形成可复查证据后，才可宣告完成。
 
@@ -22,14 +23,15 @@
 
 | 提案范围 | 必须交付结果 |
 | --- | --- |
-| DSH 兼容 | 可持续跟进上游的 DSH fork；既有插件 ABI、Cordis 服务和 Runtime 行为通过兼容性回归 |
+| DSH 兼容 | 默认使用原版 DSH 并持续跟随官方 `latest`；非破坏性版本无需代码适配，破坏性变化由版本化 adapter/bridge 处理，既有插件 ABI、Cordis 服务和 Runtime 行为通过兼容性回归 |
 | Package | 搜索、安装、更新、卸载、查询、依赖/版本解析、预构建部署、本地 recipe 构建 |
 | Repository | 可信个人 GitHub 软件源、recipes、索引、元数据、CI 构建、发布产物；随后支持多软件源、签名、校验和信任策略 |
 | Resource | 对 Skill、MCP、Prompt、`AGENTS.md` 与其他上下文资源执行发现、登记、组织、启停、绑定、解绑和所有权管理 |
-| Profile | 独立组合 Packages、Resources、插件配置、Prompt/Markdown、MCP、模型配置、Cordis Patch 和运行状态 |
-| 可复现性 | Profile 锁定版本与资源身份，可导出、校验、恢复，并能在干净测试环境重建等价 Agent Environment |
+| Profile | 独立组合 Packages、Resources、插件配置、Prompt/Markdown、MCP、模型配置、Cordis Patch、DSH Runtime 策略和运行状态；每个 Harman Profile 拥有独立 `DSH_HOME` |
+| 可复现性 | Profile 锁定 Package 与资源身份；DSH 默认记录 `latest` 策略和本次解析版本、可选固定精确版本；可导出、校验、恢复并重建等价 Agent Environment |
 | 可解释性 | 能回答插件/资源来自哪里、为何存在、被哪些 Profile 使用、当前版本、升级影响范围等问题 |
 | 生命周期安全 | Harman 仅删除或更新 managed 对象；external 对象只引用，任何卸载/清理均不得越权修改 |
+| DSH Web | 通过普通 bridge/client plugin 提供 Package、Resource、Profile、Runtime、Repository 和诊断的可视化设置与管理入口 |
 
 ### 1.2 明确非目标
 
@@ -39,6 +41,8 @@
 - 不把 npm/pnpm 的在线 dependency resolution 暴露为普通安装流程。
 - 不在第一阶段建设公共中心化 Registry。
 - 不以共享可写的插件目录实现 Profile；共享 Store 必须对 Profile 只读，状态写入 Profile 私有区域。
+- 不为每个 DSH 版本维护独立 fork 或 adapter；只有兼容合同识别出的破坏性变化才产生适配工作。
+- 不让 DSH Web 绕过 Harman Core 直接执行 npm/pnpm 或改写受管理文件。
 
 ### 1.3 需求追踪规则
 
@@ -71,7 +75,7 @@
 
 ### 2.2 DSH 上游源码分析
 
-在测试机固定具体上游 commit，产出 `docs/research/dsh-baseline.md` 和机器可读清单，至少确认：
+在测试机对调研时的官方 `latest` 固定具体上游 commit 作为可复查证据，产出 `docs/research/dsh-baseline.md` 和机器可读清单。固定 commit 仅用于一次调研/测试的证据重放，不把产品默认 Runtime 永久锁定在该版本。至少确认：
 
 1. DSH 仓库布局、构建系统、包管理器和发布方式；
 2. 插件发现、安装、加载、启停、更新和卸载的完整调用链；
@@ -97,7 +101,7 @@
 
 ### 2.4 调研退出门槛
 
-- DSH 固定基线与目标支持版本已写入决策记录；
+- 调研时 DSH `latest`、固定证据 commit、兼容合同和破坏性变化判定规则已写入决策记录；
 - ABI/Runtime 不变边界有可执行回归基线；
 - Package、Resource、Profile 所需集成点均找到且有证据；
 - 未决问题已分为阻断项、可延后项和风险接受项；
@@ -105,10 +109,10 @@
 
 ## 3. 总体架构
 
-采用“上游兼容层 + Harman Core + 前端适配层”的分层结构：
+采用“独立控制平面 + 原版 DSH Runtime + bridge/client plugin”的分层结构：
 
 ```text
-CLI / DSH UI / Automation API
+CLI / DSH Web Settings / Automation API
               |
         Harman Application
               |
@@ -121,22 +125,27 @@ CLI / DSH UI / Automation API
               |
   Repo Cache | Package Store | State DB | Profile Dir
               |
-        DSH Compatibility Adapter
+  DSH Runtime Resolver + Compatibility Adapter
+              |
+ stock DSH latest（默认）/ pinned version（可选）
               |
  Cordis / Plugin ABI / Agent Runtime / Session
 ```
+
+DSH Web 通过普通 `@harman/dsh-bridge` Host/Client bundle 接入 Harman Application；所有查询和写操作复用与 CLI 相同的 Core/API，不在浏览器插件内复制包管理或 Profile 逻辑。
 
 ### 3.1 建议仓库布局
 
 最终布局以远程 DSH 源码分析为准，预期包括：
 
 ```text
-apps/                 CLI 和可选管理 UI
+apps/                 CLI、daemon/API 与管理入口
 packages/core/        领域模型、事务、查询、策略
 packages/pkg/         recipe、求解器、归档、Store、部署
 packages/resource/    扫描器、登记、所有权、绑定
 packages/profile/     Profile 锁文件、组合、导出、恢复、启动
 packages/dsh-adapter/ DSH 薄适配与兼容性边界
+packages/dsh-bridge/  DSH Host Remote 与 Web Client/Settings 插件
 schemas/              recipe/index/lock/export 的版本化 schema
 recipes/              第一方维护的包构建规则
 docs/                 设计、ADR、威胁模型、迁移和用户手册
@@ -144,7 +153,7 @@ tests/fixtures/       合法与恶意样本（只在测试机执行）
 evidence/             脱敏后的远程验收摘要与校验值
 ```
 
-若 fork 的上游结构不适合此布局，使用 ADR 记录替代方案，但不得牺牲模块边界和需求追踪。
+若未来必须携带 DSH patch，补丁必须独立存放、可重放并有 ADR/兼容测试；不得因此改变 Harman 仓库的控制平面模块边界。
 
 ### 3.2 状态分区
 
@@ -152,12 +161,13 @@ evidence/             脱敏后的远程验收摘要与校验值
 
 - Repository Cache：索引、签名、recipe 元数据和下载缓存；
 - Immutable Package Store：按内容哈希保存已验证包实体；
+- DSH Runtime Store：保存可执行的已验证 DSH 发行物；默认 `latest` 通道指向通过兼容合同的当前官方 latest，Profile 可选引用精确版本；
 - State Database：包、资源、Profile、引用关系、事务和审计记录；
-- Profile Directory：锁文件、配置、运行状态和物化视图；
+- Profile Directory：锁文件、独立 `DSH_HOME`、配置、运行状态和物化视图；
 - External Resource：只保存 canonical path、作用域、身份指纹和可用性状态，不复制所有权；
 - Managed Resource：保存 Harman 管理副本、来源、版本和生命周期记录。
 
-所有格式必须有 schema version 和迁移机制。状态更新使用锁、临时文件、fsync/原子替换或等价事务机制，避免中断后出现半安装状态。
+所有格式必须有 schema version 和迁移机制。状态更新使用锁、临时文件、fsync/原子替换或等价事务机制，避免中断后出现半安装状态。DSH 自行生成的 `cordis.yml`、`profiles/node_modules` installation fallback 和缓存标记为可再生状态，不进入权威 Profile lock。
 
 ## 4. 领域模型与不变量
 
@@ -193,6 +203,8 @@ Resource 使用稳定 URI 标识，例如 `skill/impeccable`、`mcp/browser`、`
 Profile 记录用户声明和求解后的锁定结果：
 
 - Package 约束与精确版本；
+- DSH Runtime 策略：默认 `{ channel: latest }`，可选 `{ version: <exact> }`；
+- 最近一次实际解析的 DSH 版本、发行来源和内容哈希；
 - Resource 引用、作用域和身份指纹；
 - 插件配置；
 - Prompt/Markdown 注入顺序；
@@ -201,7 +213,7 @@ Profile 记录用户声明和求解后的锁定结果：
 - Cordis Patch；
 - 运行状态与最后一次物化结果。
 
-核心不变量：Profile 默认隔离；共享 Store 只读；写状态不得串入其他 Profile；导出不携带秘密值，而使用显式 secret reference；恢复时对缺失 external resource 给出可操作错误，不擅自创建或覆盖原路径。
+核心不变量：每个 Harman Profile 拥有独立 `DSH_HOME`，不能仅依靠同一个 `DSH_HOME/profiles/` 下的不同名称隔离；共享 Store 只读；写状态不得串入其他 Profile；未显式固定 DSH 的 Profile 始终保持 `latest` 策略，运行记录中的解析版本不反向变成 pin；导出不携带秘密值，而使用显式 secret reference；恢复时对缺失 external resource 给出可操作错误，不擅自创建或覆盖原路径。
 
 ### 4.4 引用图与解释查询
 
@@ -210,6 +222,7 @@ Profile 记录用户声明和求解后的锁定结果：
 - 某包为何安装、由谁依赖、被哪些 Profile 使用；
 - 某资源来自何处、归谁所有、绑定到哪些 Profile；
 - 当前运行 Profile 使用哪些精确版本；
+- Profile 的 DSH Runtime 跟随 `latest` 还是显式固定、当前实际解析到哪个版本；
 - 升级/卸载会影响哪些 Profile 和资源；
 - 某 `AGENTS.md`、MCP 或 Prompt 如何进入最终运行环境。
 
@@ -272,6 +285,20 @@ harman -Qi <package>
 ```
 
 同时提供脚本友好的长选项/子命令、稳定退出码、JSON 输出、`--dry-run`、非交互模式和错误分类。`-R` 必须先报告 Profile 影响；`-Syu` 必须支持预览、锁定和失败回滚。
+
+### 5.5 DSH Runtime 通道与可选固定
+
+DSH Runtime 作为独立于普通 Plugin Package 的受信任运行时对象管理：
+
+- 默认通道是官方 npm/GitHub 发布的 `latest`，不在项目级配置中写死调研版本；
+- `harman -Sy/-Syu` 检测新的官方 latest，获取发行物、来源和哈希，并先运行 DSH compatibility contract；
+- 非破坏性版本通过合同后更新 Harman 的 latest 指针，不修改 Harman 代码；
+- 合同失败时将版本标记为 `breaking/unvalidated`，保留诊断证据并启动 adapter/bridge 兼容开发，不能把未验证版本静默用于新运行；
+- Profile 默认保存 `{ channel: latest }`，可通过显式命令改为 `{ version: <exact> }`，并可解除固定恢复 latest；
+- 每次运行记录实际解析版本与哈希；这份运行事实用于审计，不改变 Profile 的通道策略；
+- `harman profile show/doctor` 和 DSH Web 必须同时展示策略值、当前解析版本、latest 可用版本和兼容状态。
+
+Profile 导出默认同时保存 DSH 策略与当次解析结果。恢复时可选择严格重放解析版本或按原 `latest` 策略解析当前版本；选择必须显式记录在恢复报告中。
 
 ## 6. Resource Manager 实施计划
 
@@ -337,17 +364,21 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 
 ### 7.3 隔离与 DSH 启动
 
-通过测试机上的 DSH 集成分析选择环境变量、显式路径注入、只读链接树或其他最薄机制，确保：
+使用已验证的 stock DSH Profile/Loader 边界物化运行环境：每个 Harman Profile 创建独立 `DSH_HOME`，在其中使用统一的内部 DSH Profile 名（例如 `harman`），通过 manifest、`cordis.patch.yml` 和只读模块视图引用 Harman Store。不得把多个 Harman Profile 仅映射为同一个 `DSH_HOME/profiles/` 下的不同 DSH Profile。
+
+启动前由 DSH Runtime Resolver 按 Profile 策略选择通过兼容验证的当前 `latest` 或显式固定版本，再设置独立 `DSH_HOME` 启动对应 stock DSH。确保：
 
 - 不同 Profile 的插件选择和版本互不污染；
-- 配置、MCP、Prompt、模型配置、Cordis Patch、缓存和运行状态按定义隔离；
+- Settings、Credentials、Session、Storage、Preset、Skill、配置、MCP、Prompt、模型配置、Cordis Patch、缓存和运行状态按定义隔离；
 - 共享 Store 不可被插件直接改写；
+- Harman-managed Profile 不调用 `dsh plugin` 或生成 pnpm lockfile；
+- DSH 生成的 `cordis.yml`、installation fallback links 和缓存与权威声明分离，可安全重建；
 - 并行运行两个 Profile 不发生锁或状态串扰；
 - 不激活 Profile 时不破坏既有 DSH 用户环境。
 
 ### 7.4 导出与恢复
 
-设计版本化、可审计的 Profile bundle/manifest，包含精确 Package 版本、仓库身份、产物哈希、recipe revision、Resource 标识/指纹/作用域、配置和秘密引用。支持：
+设计版本化、可审计的 Profile bundle/manifest，包含精确 Package 版本、仓库身份、产物哈希、recipe revision、Resource 标识/指纹/作用域、DSH Runtime 策略、当次解析版本/哈希、配置和秘密引用。支持：
 
 - 人类可读导出和机器可验证 lock；
 - 在同机和干净测试机恢复；
@@ -357,18 +388,32 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 
 “可复现”以恢复后的解析结果、包内容哈希、资源绑定和最终 DSH 运行清单等价为准，不仅是导入命令成功。
 
+### 7.5 DSH Web 可视化设置与管理
+
+交付普通 `@harman/dsh-bridge` bundle，而不是修改 DSH Web：
+
+- Host 侧通过受限本地 IPC/API 连接 Harman daemon，提供查询、事务提交、进度和审计结果；
+- Client 侧通过 `dsh.client` 和 DSH Settings slot 注册 Harman 页面/设置项；
+- CLI、Automation API 与 Web 共用 Harman Core，不复制求解、所有权或事务规则；
+- Web 断连、快照过期或 daemon 不可用时 fail closed，保留只读信息并禁止写操作；
+- 浏览器端不得直接访问 Store、改写 manifest、执行 npm/pnpm 或自行判断事务成功。
+
+界面至少提供：当前 Profile；DSH `latest/pinned` 策略、实际版本与兼容状态；Package 搜索/安装/更新/卸载及影响预览；Resource 来源/所有权/绑定；Profile 生命周期、diff、导出/恢复；Repository/签名/信任；运行时插件 inventory、漂移和 doctor 结果。
+
+完成标准同时包含浏览器功能、错误状态、加载/进度/回滚反馈、键盘与屏幕阅读器可用性、响应式布局和刷新后状态一致性。只提交 UI skeleton、静态设置卡或无法执行事务的 mock 不算完成。
+
 ## 8. DSH 集成与上游同步
 
 ### 8.1 薄修改策略
 
 优先顺序：
 
-1. 使用 DSH 已有公开服务/配置入口；
-2. 新增独立 Harman service/plugin；
-3. 在插件管理层引入 adapter；
-4. 最后才对 Runtime 增加最小、可上游化的扩展点。
+1. 直接使用 stock DSH 的 `DSH_HOME`、Profile manifest、Cordis Patch、Profile-local module resolution 和公开服务；
+2. 新增独立 Harman adapter 与普通 Host/Web bridge plugin；
+3. 对破坏性版本增加版本化兼容 adapter；
+4. 只有上述方式无法满足完整验收时，才对 Runtime 携带最小、可上游化的临时 patch。
 
-每项 fork patch 都建立 ADR，记录原因、影响 ABI、替代方案、对应上游文件以及重新基于新版本时的验证方式。
+默认不维护 DSH fork 或逐版本 adapter。每项例外 patch 都建立 ADR，记录无法使用公开边界的证据、影响 ABI、替代方案、对应上游文件、移除条件以及上游新版本的验证方式；Harman Core、Repository、Store、Resource 和 Profile 数据库始终独立。
 
 ### 8.2 兼容性合同
 
@@ -382,7 +427,11 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 
 ### 8.3 上游同步流程
 
-维护 upstream remote 与 Harman patch queue，按计划同步 DSH release/security fix。每次同步在测试机执行：基线测试、patch 重放、ABI 比较、生态样本回归、Profile 恢复回归；不通过则不得更新支持矩阵。
+持续监测 DSH 官方 `latest`。每次 latest 变化都在测试机固定发行物/commit 作为当次证据，执行：发行物校验、Profile/Loader 合同、ABI/服务比较、生态样本回归、独立 `DSH_HOME` 隔离、只读 Store mount、bridge/Web 插件发现、Profile 恢复回归。
+
+全部通过时只更新 latest 元数据和验证证据，不产生 Harman 代码变更。失败时先判断是否为上游缺陷、环境变化或破坏性接口变更；只有确认属于 Harman 所依赖边界的破坏性变化时才启动兼容开发。修复优先使用 adapter/bridge，并在必须携带 Runtime patch 时才建立临时 patch queue。
+
+Profile 的显式 DSH pin 不阻止系统继续验证和提供 latest；`latest` Profile 与 pinned Profile 的升级/运行结果必须分别报告。
 
 ## 9. 安全、完整性与隐私
 
@@ -412,6 +461,7 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 | 组件 | Repo、recipe、Store、Resource scanner、Profile materializer | 固定 fixture 与黄金输出 |
 | 集成 | CLI 到状态库/文件系统/DSH adapter 的事务 | 命令日志、状态 diff、哈希 |
 | DSH 兼容 | ABI、Cordis、Plugin、Agent/Tool/Skill/MCP/Session | 固定上游 commit 回归报告 |
+| DSH Web | bridge Remote、`dsh.client`、Settings slot、完整事务与可访问性 | 浏览器功能测试、截图/录像、API 审计记录 |
 | 端到端 | 安装包、绑定资源、运行 Profile、升级、导出恢复 | 全流程日志和最终运行清单 |
 | 故障注入 | 断网、进程终止、磁盘满、坏索引、坏签名、并发 | 失败前后不变量与恢复证据 |
 | 安全 | 穿越、symlink、恶意脚本、secret、external 保护 | 负面测试报告 |
@@ -422,7 +472,7 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 
 1. 从空状态同步仓库、搜索并安装预构建插件，无 npm/pnpm 用户侧求解。
 2. 按 recipe 本地构建缺少预构建产物的插件，结果进入同一验证/Store 流程。
-3. 两个 Profile 使用同包不同版本并发运行，配置和状态互不污染。
+3. 两个 Profile 使用同包不同版本、两个独立 `DSH_HOME` 并发运行，Settings/Credentials/Session/Storage/配置和状态互不污染。
 4. 扫描用户级 Skill、项目级 Skill、`AGENTS.md`、Prompt 和 MCP，保持 external 所有权。
 5. adopt 一个资源后验证 managed 生命周期；detach external 后原文件逐字节不变。
 6. Package 提供 Resource，同时直接 external Resource 与其并存并可解释来源。
@@ -430,12 +480,16 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 8. 删除包/Profile 时保护仍被引用对象和所有 external 内容。
 9. 导出复杂 Profile，在干净状态恢复，验证包哈希、绑定、配置和 DSH 运行清单等价。
 10. 使用多软件源、签名、密钥撤销和冲突包验证最终信任策略。
-11. 上游 DSH 更新后重放薄 patch 并执行完整兼容性套件。
+11. DSH 发布非破坏性 latest 后，仅更新验证后的 latest 指针即可运行；模拟破坏性变化时必须被合同拒绝并进入 adapter 流程，不能静默启动。
 12. CLI 的文本/JSON 输出、退出码、非交互行为和错误诊断稳定。
+13. 未固定 Profile 自动解析验证后的 DSH latest；显式 pinned Profile 保持精确版本，解除固定后重新跟随 latest。
+14. Profile 导出同时记录 DSH 策略和实际解析版本，严格重放与 follow-latest 两种恢复模式结果清晰可解释。
+15. Harman-managed Profile 从操作系统只读 Store mount Package，不调用 `dsh plugin`、npm/pnpm 或生成 pnpm lockfile。
+16. DSH Web 完成 Package/Resource/Profile/Runtime/Repository/doctor 全流程；daemon 断开、状态过期、事务失败和回滚均正确呈现且 fail closed。
 
 ### 10.3 远程执行纪律
 
-- 每批测试记录远程主机、Harman commit、DSH commit、工具版本和命令；
+- 每批测试记录远程主机、Harman commit、DSH channel、实际 DSH 版本/commit/发行哈希、工具版本和命令；
 - 本地源码通过 SCP/rsync 传入，排除 `.git`、凭据、私钥、GPG keyring、secret 文件和缓存；
 - 测试机仓库只用于可丢弃工作副本和日志，不直接形成唯一修复；
 - 系统变更前记录 Snapper snapshot number，成功后不自动删除快照；
@@ -450,7 +504,7 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 
 ### M0：需求冻结与测试机调研
 
-- 建立需求追踪、远程基线、DSH/生态源码分析、架构 ADR、威胁模型。
+- 建立需求追踪、远程基线、当前 DSH latest/生态源码分析、stock DSH 外置控制平面 ADR、破坏性变化判定合同和威胁模型。
 - 退出：第 2 节调研门槛全部通过；没有编码。
 
 ### M1：Core、状态模型与查询图
@@ -470,8 +524,8 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 
 ### M4：Profile 隔离与 DSH 集成
 
-- 完成 Profile 生命周期、组合、物化、运行、隔离和 explain。
-- 退出：多 Profile 并发与社区插件兼容套件通过，DSH Runtime 非目标边界无回归。
+- 完成 Profile 生命周期、独立 `DSH_HOME`、组合、物化、运行、latest/pinned Runtime Resolver、隔离、explain 和 bridge 基础。
+- 退出：多 Profile 并发、只读 Store mount、latest/pinned 行为与社区插件兼容套件通过，stock DSH Runtime 非目标边界无回归。
 
 ### M5：导出、恢复与可复现性
 
@@ -485,7 +539,7 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 
 ### M7：上游同步、性能、安全与发行候选
 
-- 执行 DSH 新版本同步演练、完整安全/性能/兼容/安装升级卸载测试，补齐运维与用户文档。
+- 完成 DSH Web 可视化管理的真实浏览器验收；执行 DSH latest 非破坏性自动跟进和破坏性变化拒绝/适配演练、完整安全/性能/兼容/安装升级卸载测试，补齐运维与用户文档。
 - 退出：第 13 节完整验收签字；仍不自动发布。
 
 里程碑顺序允许在证据充分时局部并行，但不得跳过退出门槛。每个阶段结束更新需求追踪矩阵和风险登记。
@@ -502,7 +556,7 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 
 ### 12.2 决策记录
 
-以下主题必须有 ADR：DSH fork 基线、状态数据库、Store 布局、包格式、recipe sandbox、版本求解器、Profile 物化、Resource 身份与所有权、签名/信任根、上游同步策略。
+以下主题必须有 ADR：stock DSH 外置控制平面、latest/pinned Runtime 策略、破坏性变化判定与薄 fork 例外门槛、DSH Web bridge/API 信任边界、状态数据库、Store 布局、包格式、recipe sandbox、版本求解器、Profile 物化、Resource 身份与所有权、签名/信任根、上游同步策略。
 
 ### 12.3 文档交付
 
@@ -510,7 +564,8 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 - recipe 作者、Repository 维护者和 CI 发布手册；
 - Resource 类型、扫描范围、adopt 与所有权安全说明；
 - Profile 创建、组合、导出、恢复和故障排查；
-- DSH 兼容矩阵和插件开发者说明；
+- DSH latest/pinned 策略、兼容状态、破坏性更新处理和插件开发者说明；
+- DSH Web 可视化管理、daemon 连接与只读降级说明；
 - 安全模型、信任策略、密钥轮换和事件恢复；
 - 数据格式、迁移、备份/恢复和上游同步维护手册。
 
@@ -526,12 +581,17 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 - [ ] Resource Manager 支持提案列出的全部资源类型与全部命令。
 - [ ] external/managed 生命周期严格分离，`AGENTS.md` 等项目文件所有权不被改变。
 - [ ] Profile 覆盖 Packages、Resources、插件配置、Prompt/Markdown、MCP、模型配置、Cordis Patch 和运行状态。
-- [ ] Profile 默认隔离，共享全局 Store 只读且支持版本并存。
-- [ ] Profile 可导出、恢复并在干净环境证明结果等价。
+- [ ] 每个 Harman Profile 使用独立 `DSH_HOME`，共享全局 Store 只读且支持版本并存；DSH 可再生状态不污染权威 lock。
+- [ ] DSH Runtime 默认跟随验证后的官方 `latest`，非破坏性更新无需 Harman 代码变更；破坏性更新能被合同识别并进入适配流程。
+- [ ] Profile 可显式固定/解除固定 DSH 版本，并同时展示策略、实际解析版本、latest 版本与兼容状态。
+- [ ] Profile 可导出、恢复并在干净环境证明结果等价；导出包含 DSH 策略与实际解析版本，支持严格重放和 follow-latest 恢复。
 - [ ] DSH Runtime、Cordis、插件 ABI、`ctx.*`、Agent Loop、Tool/Skill/MCP Runtime、Session 兼容性达到支持矩阵承诺。
+- [ ] stock DSH 能从操作系统只读 Store mount Harman Package，Harman-managed Profile 不调用 `dsh plugin` 或 npm/pnpm。
+- [ ] DSH Web 通过普通 bridge/client plugin 提供 Package、Resource、Profile、Runtime、Repository 和 doctor 的完整可视化管理，所有写操作经过 Harman 事务 API。
+- [ ] DSH Web 的断连、过期、失败、回滚、加载、可访问性、响应式和刷新后一致性通过真实浏览器验收；UI skeleton 或 mock 不算完成。
 - [ ] 可信 GitHub Repository 的 recipes、index、metadata、CI 和 release artifacts 完整可用。
 - [ ] 多软件源、签名、校验和信任策略已实现，不再只是路线图条目。
-- [ ] 管理器能回答提案第 9 节列出的来源、引用、版本、存在原因与升级影响问题。
+- [ ] 管理器能回答提案第 10 节列出的来源、引用、版本、存在原因与升级影响问题。
 - [ ] 安全、故障注入、性能、安装/升级/卸载、上游同步和负面测试通过。
 - [ ] 每个提案需求均有实现、远程测试证据和用户文档的追踪链接。
 - [ ] 不存在把 demo、脚手架、单一 happy path 或未验证实现标记为完成的情况。
@@ -540,13 +600,15 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 
 | 风险 | 缓解措施 |
 | --- | --- |
-| DSH 上游接口变化快 | 固定基线、薄 adapter、patch queue、上游同步兼容套件 |
+| DSH latest 上游变化快 | latest 监测、发行物固定证据、兼容合同；非破坏性更新只推进 latest 指针，破坏性更新才开发 adapter/bridge |
 | npm 生态依赖/脚本复杂 | recipe 审核、构建隔离、固化依赖、SBOM、负面样本 |
 | Profile 隔离不彻底 | 明确所有写路径、并发双 Profile 测试、运行状态 diff |
 | external 资源被误删 | 所有权字段、canonical path 防护、manifest 归属校验、逐字节负面测试 |
 | 索引/产物供应链攻击 | 哈希、签名、信任根、撤销、重放/降级防护、审计 |
 | 导出泄露 secret | 仅导出 secret reference、日志脱敏、恢复时显式注入 |
-| fork 长期漂移 | 最小修改、ADR、周期同步演练、可上游化扩展点 |
+| 显式 pinned DSH 长期过旧 | 展示安全/兼容状态、允许解除固定、保留可用产物但不阻止系统持续验证 latest |
+| DSH Web 与 Core 行为漂移 | CLI/Web 共用 Core/API，浏览器禁止直接写文件，合同测试与真实浏览器事务验收 |
+| 例外薄 fork 长期漂移 | 严格 ADR 门槛、最小 patch、移除条件、可上游化扩展点和每次 latest 重放测试 |
 | 测试机状态污染 | 每项目工作区、系统变更前 Snapper、持久变更清单、禁止无关操作 |
 
 ## 15. 开发启动条件
@@ -557,7 +619,8 @@ Prompt/Markdown、MCP 名称、模型配置、插件配置、Cordis Patch 出现
 2. 用户提供或确认唯一测试机 SSH host/alias；
 3. 测试机非交互 SSH、sudo 与 Snapper 能力完成预检；
 4. 测试机 `~/test-work/harman` 工作区和临时 Git 仓库已建立；
-5. DSH 上游来源、许可、目标基线和支持版本获得确认；
-6. M0 调研计划的范围与证据格式已就绪。
+5. DSH 上游来源、许可、默认 latest 通道、可选 pin 语义和破坏性变化判定合同获得确认；
+6. stock DSH 外置控制平面与 DSH Web bridge 的 M0 调研证据已归档，后续 latest 可重复执行同一合同；
+7. M0 调研计划的范围与证据格式已就绪。
 
-满足启动条件只代表允许进入 M0 源码分析，不代表可以跳过调研直接实现。
+满足启动条件后方可进入实现阶段；后续每次 DSH `latest` 变化仍必须先执行兼容合同并归档测试机证据，不得绕过证据门槛直接发布。

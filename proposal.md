@@ -2,9 +2,9 @@
 
 ## 1. 项目定位
 
-Harman（Harness Manager）是一个基于 DeepSeek Harness（DSH）开发的管理层扩展，目标是在尽可能保持 DSH 插件生态兼容的前提下，提供更清晰、可控、可复现的插件与 Agent 环境管理能力。
+Harman（Harness Manager）是一个以 DeepSeek Harness（DSH）为主要 Runtime 的独立管理层，目标是在尽可能保持 DSH 插件生态兼容的前提下，提供更清晰、可控、可复现的插件与 Agent 环境管理能力。
 
-项目优先采用 fork DSH 的方式开发，尽量避免修改 Agent Runtime、Cordis 插件接口和现有插件 ABI，主要集中改造插件管理、资源管理与 Profile 管理相关部分。
+项目优先保留 DSH 本体不变，在 DSH 之外实现 Package、Resource 和 Profile 控制平面，并通过版本化 adapter 与普通 DSH bridge plugin 完成运行时和 Web 集成。只有 DSH 的公开配置、Profile、Cordis Plugin 或 Web Client Plugin 边界无法满足完整需求时，才考虑维护最小、可上游化的薄 fork；Harman 的管理核心不进入 fork。
 
 Harman 不试图重新实现一个 Harness，而是补足 DSH 当前缺少的“发行版级管理能力”。
 
@@ -157,9 +157,15 @@ web
 
 Profile 应支持导出与恢复，以形成真正可复现的 Agent Environment。
 
+每个 Harman Profile 使用独立的 `DSH_HOME`，而不是仅映射为同一个 `DSH_HOME` 下的不同 DSH Profile。由此隔离 DSH 的 Profile、Settings、Credentials、Session、Storage、Preset、Skill、Home 级 Cordis Patch 和其他运行状态。
+
+DSH Runtime 默认跟随官方 `latest`：Harman 不为普通 Profile 固定 DSH 版本，也不因非破坏性上游发布维护逐版本 adapter。每个新 `latest` 通过兼容合同后直接成为默认 Runtime；只有检测到破坏性变化时，才进入兼容开发。
+
+需要稳定复现、审计或暂缓升级的 Profile 可以显式固定 DSH 精确版本。未固定的 Profile 保存 `latest` 通道策略；导出和运行记录仍应记录当次实际解析出的 DSH 版本与产物哈希，使一次运行可追溯，同时不把该版本永久变成 Profile 的默认约束。
+
 ## 6. 与 DeepSeek Harness 的关系
 
-Harman 应尽量保持 DSH Runtime 不变。
+Harman 默认使用官方原版 DSH Runtime，并以外置控制层的方式跟随 DSH `latest`。
 
 优先保留：
 
@@ -173,7 +179,7 @@ Session 机制
 现有插件接口
 ```
 
-主要修改或扩展：
+Harman 主要在 DSH 之外实现或扩展：
 
 ```text
 dsh plugin
@@ -185,13 +191,38 @@ Profile 管理
 配置与资源组合逻辑
 ```
 
+Harman 将验证后的 Package 从全局只读 Store 物化到 Profile，并生成 DSH 可直接读取的 Profile manifest、`cordis.patch.yml` 与模块视图。Harman-managed Profile 不调用 `dsh plugin` 进行 pnpm dependency resolution。
+
+DSH Runtime 本身也作为可解析的运行时对象管理：默认引用 `latest` 通道，Profile 可选引用精确版本。DSH 生成的 `cordis.yml`、安装 fallback links 和运行缓存属于可再生状态，不进入 Harman 的权威锁文件。
+
 设计原则是：
 
 > DSH 负责“能力如何运行”，Harman 负责“运行哪些能力，以及它们如何被组织”。
 
 这样既能快速兼容已有 DSH 插件，又能持续跟进 DSH 上游发展。
 
-## 7. Repository
+## 7. DSH Web 可视化管理
+
+Harman 应在 DSH Web 中提供原生可发现的可视化设置与管理入口，同时保持 CLI 和 Harman 事务 API 为行为真源。
+
+Web 集成优先以普通 Harman bridge bundle 实现：Host 侧连接 Harman daemon/API，Client 侧通过 DSH Web Client Plugin 和 Settings slot 注册界面，不修改 DSH Web 本体。
+
+可视化界面至少覆盖：
+
+```text
+当前 Profile 与 DSH Runtime（latest / pinned）
+Package 搜索、安装、更新、卸载与影响预览
+Resource 来源、所有权、启停与 Profile 绑定
+Profile 创建、切换、差异、导出与恢复
+Repository、签名与信任状态
+运行时插件清单、诊断与漂移提示
+```
+
+浏览器端不得直接修改 Profile 文件、Store 或调用 npm/pnpm。所有写操作必须经过 Harman 的鉴权、事务、影响分析和审计接口；在 Harman daemon 不可用或状态过期时，界面应只读或明确拒绝写入。
+
+DSH Web 不可用时，CLI、自动化 API 和 headless Profile 仍应完整工作；但 DSH Web 可视化管理本身属于项目最终交付与验收范围，不得以 CLI 已可用为由省略。
+
+## 8. Repository
 
 第一阶段采用个人 GitHub 仓库作为可信软件源。
 
@@ -217,19 +248,22 @@ harman repo add community ...
 
 第一阶段不建设类似 npm 的公共中心化 Registry。
 
-## 8. 项目原则
+## 9. 项目原则
 
 Harman 的核心原则为：
 
 - 优先兼容 DSH，而不是重新设计 DSH。
+- 默认使用原版 DSH 并跟随官方 `latest`；非破坏性更新不产生逐版本适配工作，破坏性更新才触发兼容开发。
+- Profile 可以显式固定 DSH 版本，但固定不是默认行为。
 - npm/pnpm 可以参与构建，但不应成为最终用户的包管理体验。
 - Package 与 Resource 明确分离。
 - 本机已有 Agent 资源无需重新打包即可被管理。
 - Profile 是独立、可复现的 Agent Environment。
 - Harman 只负责自己拥有的文件生命周期，不擅自修改或删除 external resource。
-- 尽可能保持对 DSH 上游的薄修改，以降低长期同步成本。
+- DSH Web 管理界面通过普通 bridge/client plugin 扩展，写操作统一经过 Harman 事务边界。
+- 除非完整需求无法通过公开扩展边界实现，不 fork DSH；即使必须 fork，也只保留最小补丁。
 
-## 9. 项目目标
+## 10. 项目目标
 
 Harman 最终希望把类似：
 
@@ -241,6 +275,8 @@ Writing Profile 使用哪些 Skill？
 这个插件为什么存在？
 哪个版本正在使用？
 更新会影响哪些 Profile？
+当前 Profile 跟随 DSH latest 还是固定版本？
+新的 DSH latest 是否通过兼容验证？
 ```
 
 这些问题变成可以由统一管理器明确回答的问题。
