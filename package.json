@@ -1,0 +1,17 @@
+{
+  "name": "harman",
+  "version": "0.1.0-dev",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "bin": {
+    "harman": "apps/cli/harman.js"
+  },
+  "scripts": {
+    "test": "node --test packages/core/test/*.test.js",
+    "test:core": "node --test packages/core/test/*.test.js",
+    "check": "node --check apps/cli/harman.js && node --test packages/core/test/*.test.js"
+  }
+}

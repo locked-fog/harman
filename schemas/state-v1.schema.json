@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harman.invalid/schemas/state-v1.schema.json",
+  "title": "Harman state v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "revision", "packages", "resources", "profiles", "runtimes", "audit"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "revision": { "type": "integer", "minimum": 0 },
+    "packages": { "type": "object" },
+    "resources": { "type": "object" },
+    "profiles": { "type": "object" },
+    "runtimes": { "type": "object" },
+    "audit": { "type": "array" }
+  }
+}
