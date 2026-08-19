@@ -4,7 +4,7 @@ import { homedir } from 'node:os'
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import {
-  HarmanError, PackageManager, StateStore, ValidationError,
+  HarmanError, PackageManager, ResourceManager, StateStore, ValidationError,
   explainPackage, explainProfile, explainResource, packageImpact, profileImpact,
 } from '../../packages/core/src/index.js'
 
@@ -67,6 +67,15 @@ Commands:
   repo add ID URL [PRIORITY] add a hash-verified repository
   repo list                  list configured repositories
   recipe build FILE          build a hash-pinned recipe in an isolated sandbox
+  resource scan [PROJECT]    discover external Skills, AGENTS.md, Prompts, and MCP
+  resource list              list registered Resources
+  resource show ID           show Resource identity and ownership
+  resource register TYPE PATH [--id ID] [--scope SCOPE]
+  resource adopt ID          copy an external Resource into managed storage (--yes)
+  resource enable ID [--profile NAME]
+  resource disable ID [--profile NAME]
+  resource bind ID --profile NAME
+  resource detach ID --profile NAME
   -Sy                        synchronize repository indexes
   -Ss QUERY                  search synchronized repositories
   -S PACKAGE...              solve, verify, and install packages
@@ -106,6 +115,16 @@ async function execute(argv) {
   }
   const store = new StateStore(parsed.home)
   const packages = new PackageManager(store)
+  const resources = new ResourceManager(store)
+
+  function option(name) {
+    const index = operands.indexOf(name)
+    if (index === -1) return undefined
+    const value = operands[index + 1]
+    if (value === undefined || value.startsWith('--')) throw new ValidationError(`${name} requires a value`)
+    operands.splice(index, 2)
+    return value
+  }
 
   if (command === 'state' && operands[0] === 'init' && operands.length === 1) {
     const state = await store.initialize()
@@ -155,6 +174,41 @@ async function execute(argv) {
     const recipe = JSON.parse(await readFile(resolve(operands[1]), 'utf8'))
     const result = await packages.buildRecipe(recipe, { preserveFailure: false })
     return { stdout: render(result, parsed.json), code: 0 }
+  }
+  if (command === 'resource') {
+    const action = operands.shift()
+    const profile = option('--profile')
+    const idOption = option('--id')
+    const scope = option('--scope')
+    if (action === 'scan' && operands.length <= 1 && profile === undefined && idOption === undefined && scope === undefined) {
+      const result = await resources.scan({ userHome: homedir(), projectRoot: resolve(operands[0] ?? process.cwd()) })
+      return { stdout: render(result, parsed.json), code: 0 }
+    }
+    if (action === 'list' && operands.length === 0) {
+      await store.initialize()
+      return { stdout: render(await resources.list(), parsed.json), code: 0 }
+    }
+    if (action === 'show' && operands.length === 1) {
+      await store.initialize()
+      return { stdout: render(await resources.show(operands[0]), parsed.json), code: 0 }
+    }
+    if (action === 'register' && operands.length === 2) {
+      await store.initialize()
+      return { stdout: render(await resources.register(operands[0], operands[1], { id: idOption, scope }), parsed.json), code: 0 }
+    }
+    if (action === 'adopt' && operands.length === 1) {
+      await store.initialize()
+      return { stdout: render(await resources.adopt(operands[0], { dryRun: parsed.dryRun, confirmed: parsed.confirmed }), parsed.json), code: 0 }
+    }
+    if ((action === 'enable' || action === 'disable') && operands.length === 1) {
+      await store.initialize()
+      return { stdout: render(await resources.setEnabled(operands[0], action === 'enable', profile), parsed.json), code: 0 }
+    }
+    if ((action === 'bind' || action === 'detach') && operands.length === 1 && profile !== undefined) {
+      await store.initialize()
+      const result = action === 'bind' ? await resources.bind(operands[0], profile) : await resources.detach(operands[0], profile)
+      return { stdout: render(result, parsed.json), code: 0 }
+    }
   }
   if (command === '-Sy' && operands.length === 0) {
     return { stdout: render(await packages.sync(), parsed.json), code: 0 }
