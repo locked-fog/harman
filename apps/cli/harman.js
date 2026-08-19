@@ -66,6 +66,13 @@ Commands:
   impact profile NAME        preview Profile deletion impact
   repo add ID URL [PRIORITY] add a hash-verified repository
   repo list                  list configured repositories
+  repo remove ID             remove repository configuration
+  repo priority ID NUMBER    set deterministic source priority
+  repo enable|disable ID     explicitly trust or distrust source availability
+  repo policy ID POLICY      set trusted-local, hash-only, or signed
+  repo key-add ID FILE       add an Ed25519 public trust key
+  repo key-revoke ID KEY_ID  revoke a repository signing key
+  repo threshold ID NUMBER   require N distinct valid index/artifact signatures
   recipe build FILE          build a hash-pinned recipe in an isolated sandbox
   resource scan [PROJECT]    discover external Skills, AGENTS.md, Prompts, and MCP
   resource list              list registered Resources
@@ -189,6 +196,19 @@ async function execute(argv) {
   if (command === 'repo' && operands[0] === 'list' && operands.length === 1) {
     await store.initialize()
     return { stdout: render(Object.values((await store.read()).repositories), parsed.json), code: 0 }
+  }
+  if (command === 'repo' && operands[0] === 'remove' && operands.length === 2) return { stdout: render(await packages.removeRepository(operands[1]), parsed.json), code: 0 }
+  if (command === 'repo' && operands[0] === 'priority' && operands.length === 3) {
+    const priority = Number(operands[2]); if (!Number.isInteger(priority)) throw new ValidationError('repository priority must be an integer')
+    return { stdout: render(await packages.configureRepository(operands[1], { priority }), parsed.json), code: 0 }
+  }
+  if (command === 'repo' && ['enable', 'disable'].includes(operands[0]) && operands.length === 2) return { stdout: render(await packages.configureRepository(operands[1], { enabled: operands[0] === 'enable' }), parsed.json), code: 0 }
+  if (command === 'repo' && operands[0] === 'policy' && operands.length === 3) return { stdout: render(await packages.configureRepository(operands[1], { trustPolicy: operands[2] }), parsed.json), code: 0 }
+  if (command === 'repo' && operands[0] === 'key-add' && operands.length === 3) return { stdout: render(await packages.addRepositoryKey(operands[1], await readFile(resolve(operands[2]), 'utf8')), parsed.json), code: 0 }
+  if (command === 'repo' && operands[0] === 'key-revoke' && operands.length === 3) return { stdout: render(await packages.revokeRepositoryKey(operands[1], operands[2]), parsed.json), code: 0 }
+  if (command === 'repo' && operands[0] === 'threshold' && operands.length === 3) {
+    const threshold = Number(operands[2]); if (!Number.isInteger(threshold)) throw new ValidationError('signature threshold must be an integer')
+    return { stdout: render(await packages.configureRepository(operands[1], { signatureThreshold: threshold }), parsed.json), code: 0 }
   }
   if (command === 'recipe' && operands[0] === 'build' && operands.length === 2) {
     const recipe = JSON.parse(await readFile(resolve(operands[1]), 'utf8'))

@@ -185,6 +185,9 @@ export function addRepository(state, input) {
     lastSync: null,
     etag: null,
     indexHash: null,
+    trustedKeys: {},
+    revokedKeys: [],
+    signatureThreshold: 1,
   }
   return state.repositories[id]
 }

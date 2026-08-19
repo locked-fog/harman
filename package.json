@@ -7,11 +7,12 @@
     "node": ">=22.19.0"
   },
   "bin": {
-    "harman": "apps/cli/harman.js"
+    "harman": "apps/cli/harman.js",
+    "harman-repo": "apps/cli/harman-repo.js"
   },
   "scripts": {
     "test": "node --test packages/core/test/*.test.js",
     "test:core": "node --test packages/core/test/*.test.js",
-    "check": "node --check apps/cli/harman.js && node --test packages/core/test/*.test.js"
+    "check": "node --check apps/cli/harman.js && node --check apps/cli/harman-repo.js && node --test packages/core/test/*.test.js"
   }
 }

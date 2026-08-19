@@ -5,6 +5,7 @@ import { dirname, join, resolve } from 'node:path'
 import { canonicalJson, contentHash } from './canonical.js'
 import { ConflictError, ValidationError } from './errors.js'
 import { compareVersions, parseVersion } from './semver.js'
+import { verifyIndexTrust } from './trust.js'
 
 export const REPOSITORY_INDEX_VERSION = 1
 
@@ -33,6 +34,7 @@ export function validateRepositoryIndex(index) {
       if (typeof entry.artifact?.url !== 'string' || !/^[a-f0-9]{64}$/.test(entry.artifact?.sha256 ?? '')) {
         throw new ValidationError(`package ${name}@${entry.version} artifact is invalid`)
       }
+      if (entry.artifact.signatures !== undefined && !Array.isArray(entry.artifact.signatures)) throw new ValidationError(`package ${name}@${entry.version} artifact signatures are invalid`)
       if (entry.dependencies !== undefined) object(entry.dependencies, `package ${name}@${entry.version} dependencies`)
     }
   }
@@ -59,7 +61,8 @@ export async function syncRepository(root, repository, options = {}) {
   const response = await loadUrl(repository.url, repository.etag)
   if (response.status === 304) {
     const index = validateRepositoryIndex(JSON.parse(await readFile(cachePath, 'utf8')))
-    return { changed: false, index, etag: repository.etag, indexHash: contentHash(index) }
+    const verifiedKeys = verifyIndexTrust(index, repository)
+    return { changed: false, index, etag: repository.etag, indexHash: contentHash(index), verifiedKeys }
   }
   let index
   try {
@@ -70,6 +73,10 @@ export async function syncRepository(root, repository, options = {}) {
   if (!options.allowRollback && repository.sequence !== null && index.sequence < repository.sequence) {
     throw new ConflictError(`repository ${repository.id} sequence rolled back`, { previous: repository.sequence, received: index.sequence })
   }
+  if (!options.allowRollback && repository.sequence !== null && index.sequence === repository.sequence && repository.indexHash !== null && contentHash(index) !== repository.indexHash) {
+    throw new ConflictError(`repository ${repository.id} changed content without increasing sequence`, { sequence: index.sequence, previousHash: repository.indexHash, receivedHash: contentHash(index) })
+  }
+  const verifiedKeys = verifyIndexTrust(index, repository)
   await mkdir(dirname(cachePath), { recursive: true })
   const temporary = `${cachePath}.${process.pid}.tmp`
   try {
@@ -83,7 +90,7 @@ export async function syncRepository(root, repository, options = {}) {
     await rm(temporary, { force: true })
     throw error
   }
-  return { changed: true, index, etag: response.etag, indexHash: contentHash(index) }
+  return { changed: true, index, etag: response.etag, indexHash: contentHash(index), verifiedKeys }
 }
 
 export async function readRepositoryCache(root, id) {

@@ -1,0 +1,35 @@
+name: repository-ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install isolation runtime
+        run: sudo apt-get update && sudo apt-get install --yes bubblewrap
+      - name: Test control plane and hostile fixtures
+        run: npm test
+      - name: Validate command entry points
+        run: npm run check
+      - name: Build reviewed recipes twice with provenance and SBOM
+        run: |
+          mkdir -p dist/recipes
+          find recipes -type f -name '*.json' -print0 | while IFS= read -r -d '' recipe; do
+            name="$(basename "${recipe%.json}")"
+            node apps/cli/harman-repo.js build "$recipe" "dist/recipes/$name"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-repository-artifacts
+          path: dist/recipes

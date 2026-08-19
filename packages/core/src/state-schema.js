@@ -63,6 +63,9 @@ export function validateState(state, options = {}) {
     if (!['trusted-local', 'hash-only', 'signed'].includes(repository.trustPolicy)) {
       throw new ValidationError(`repository ${id} trustPolicy is invalid`)
     }
+    objectRecord(repository.trustedKeys ?? {}, `repository ${id} trustedKeys`)
+    uniqueStrings(repository.revokedKeys ?? [], `repository ${id} revokedKeys`)
+    if (!Number.isInteger(repository.signatureThreshold ?? 1) || (repository.signatureThreshold ?? 1) < 1) throw new ValidationError(`repository ${id} signatureThreshold is invalid`)
   }
 
   let latestRuntimes = 0

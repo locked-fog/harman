@@ -102,7 +102,7 @@ export class RecipeBuilder {
         url: pathToFileURL(artifactPath).href, sha256: artifactSha256,
       })
       succeeded = true
-      return { recipe: { name: recipe.name, version: recipe.version }, artifactSha256, imported, logs }
+      return { recipe: { name: recipe.name, version: recipe.version }, artifactSha256, imported, logs, ...(options.captureArtifact ? { artifactBytes } : {}) }
     } finally {
       if (succeeded || options.preserveFailure !== true) await rm(buildRoot, { recursive: true, force: true })
     }

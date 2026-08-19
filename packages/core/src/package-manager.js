@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import {
-  addPackage, addRepository, packageId, removePackage,
+  addPackage, addRepository, packageId, removePackage, removeRepository,
 } from './domain.js'
 import { ConflictError, NotFoundError, ValidationError } from './errors.js'
 import { packageImpact } from './graph.js'
@@ -10,6 +10,7 @@ import {
 } from './repository.js'
 import { solvePackages } from './solver.js'
 import { RecipeBuilder } from './recipe-builder.js'
+import { publicKeyId, verifyArtifactTrust, verifyIndexTrust } from './trust.js'
 
 function parseRequest(spec) {
   if (typeof spec !== 'string' || spec === '') throw new ValidationError('package request is empty')
@@ -35,9 +36,59 @@ export class PackageManager {
     const sources = []
     for (const repository of Object.values(state.repositories)) {
       if (!repository.enabled || repository.indexHash === null) continue
-      sources.push({ repository, index: await readRepositoryCache(this.stateStore.root, repository.id) })
+      const index = await readRepositoryCache(this.stateStore.root, repository.id)
+      verifyIndexTrust(index, repository)
+      sources.push({ repository, index })
     }
     return sources
+  }
+
+  async removeRepository(id) {
+    return (await this.stateStore.transaction({ action: 'repository.remove', details: { id } }, state => removeRepository(state, id))).result
+  }
+
+  async configureRepository(id, changes) {
+    return (await this.stateStore.transaction({ action: 'repository.configure', details: { id, changes } }, state => {
+      const repository = state.repositories[id]
+      if (repository === undefined) throw new NotFoundError(`repository ${id} does not exist`)
+      if (changes.priority !== undefined) repository.priority = changes.priority
+      if (changes.enabled !== undefined) repository.enabled = changes.enabled
+      if (changes.signatureThreshold !== undefined) {
+        if (!Number.isInteger(changes.signatureThreshold) || changes.signatureThreshold < 1) throw new ValidationError('signature threshold must be a positive integer')
+        const active = Object.keys(repository.trustedKeys ?? {}).filter(key => !(repository.revokedKeys ?? []).includes(key)).length
+        if (changes.signatureThreshold > active) throw new ConflictError('signature threshold exceeds active key count', { active })
+        repository.signatureThreshold = changes.signatureThreshold
+      }
+      if (changes.trustPolicy !== undefined) {
+        if (!['trusted-local', 'hash-only', 'signed'].includes(changes.trustPolicy)) throw new ValidationError('invalid repository trust policy')
+        if (changes.trustPolicy === 'signed' && Object.keys(repository.trustedKeys ?? {}).filter(key => !(repository.revokedKeys ?? []).includes(key)).length === 0) throw new ConflictError('signed trust policy requires an active key')
+        repository.trustPolicy = changes.trustPolicy
+      }
+      return repository
+    })).result
+  }
+
+  async addRepositoryKey(id, publicKeyPem) {
+    const keyId = publicKeyId(publicKeyPem)
+    return (await this.stateStore.transaction({ action: 'repository.key.add', details: { id, keyId } }, state => {
+      const repository = state.repositories[id]
+      if (repository === undefined) throw new NotFoundError(`repository ${id} does not exist`)
+      repository.trustedKeys ??= {}
+      repository.revokedKeys ??= []
+      if (repository.trustedKeys[keyId] !== undefined) throw new ConflictError(`repository key ${keyId} already exists`)
+      repository.trustedKeys[keyId] = publicKeyPem
+      return { repository: id, keyId }
+    })).result
+  }
+
+  async revokeRepositoryKey(id, keyId) {
+    return (await this.stateStore.transaction({ action: 'repository.key.revoke', details: { id, keyId } }, state => {
+      const repository = state.repositories[id]
+      if (repository === undefined) throw new NotFoundError(`repository ${id} does not exist`)
+      if (repository.trustedKeys?.[keyId] === undefined) throw new NotFoundError(`repository key ${keyId} does not exist`)
+      repository.revokedKeys = [...new Set([...(repository.revokedKeys ?? []), keyId])].sort()
+      return { repository: id, keyId, revoked: true }
+    })).result
   }
 
   async sync() {
@@ -80,10 +131,11 @@ export class PackageManager {
     const sourceById = new Map(sources.map(source => [source.repository.id, source]))
     return {
       ...solved,
-      packages: solved.packages.map(pkg => ({
-        ...pkg,
-        artifact: { ...pkg.artifact, url: resolveArtifactUrl(sourceById.get(pkg.repository).repository.url, pkg.artifact.url) },
-      })),
+      packages: solved.packages.map(pkg => {
+        const repository = sourceById.get(pkg.repository).repository
+        const trustedSignatures = verifyArtifactTrust(pkg, repository)
+        return { ...pkg, trustedSignatures, artifact: { ...pkg.artifact, url: resolveArtifactUrl(repository.url, pkg.artifact.url) } }
+      }),
     }
   }
 
