@@ -1,7 +1,7 @@
 import { isAbsolute, resolve, sep } from 'node:path'
 import { UnsupportedSchemaError, ValidationError } from './errors.js'
 
-export const CURRENT_SCHEMA_VERSION = 1
+export const CURRENT_SCHEMA_VERSION = 2
 
 export function emptyState() {
   return {
@@ -10,6 +10,7 @@ export function emptyState() {
     packages: {},
     resources: {},
     profiles: {},
+    repositories: {},
     runtimes: {},
     audit: [],
   }
@@ -50,8 +51,19 @@ export function validateState(state, options = {}) {
     throw new UnsupportedSchemaError(`state schema ${state.schemaVersion} requires an explicit migration`)
   }
   if (!Number.isInteger(state.revision) || state.revision < 0) throw new ValidationError('revision must be a non-negative integer')
-  for (const key of ['packages', 'resources', 'profiles', 'runtimes']) objectRecord(state[key], key)
+  for (const key of ['packages', 'resources', 'profiles', 'repositories', 'runtimes']) objectRecord(state[key], key)
   if (!Array.isArray(state.audit)) throw new ValidationError('audit must be an array')
+
+  for (const [id, repository] of Object.entries(state.repositories)) {
+    objectRecord(repository, `repository ${id}`)
+    if (repository.id !== id) throw new ValidationError(`repository map key ${id} does not match its id`)
+    nonEmpty(repository.url, `repository ${id} url`)
+    if (!Number.isInteger(repository.priority)) throw new ValidationError(`repository ${id} priority must be an integer`)
+    if (typeof repository.enabled !== 'boolean') throw new ValidationError(`repository ${id} enabled must be boolean`)
+    if (!['trusted-local', 'hash-only', 'signed'].includes(repository.trustPolicy)) {
+      throw new ValidationError(`repository ${id} trustPolicy is invalid`)
+    }
+  }
 
   for (const [id, pkg] of Object.entries(state.packages)) {
     objectRecord(pkg, `package ${id}`)

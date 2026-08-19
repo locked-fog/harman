@@ -167,3 +167,29 @@ export function setResourceEnabled(state, resourceId, enabled) {
   resource.enabled = Boolean(enabled)
   return resource
 }
+
+export function addRepository(state, input) {
+  const id = input.id
+  if (typeof id !== 'string' || !/^[A-Za-z0-9._-]+$/.test(id)) throw new ValidationError(`invalid repository id ${id}`)
+  assertNew(state.repositories, id, 'repository')
+  state.repositories[id] = {
+    id,
+    url: input.url,
+    priority: input.priority ?? 0,
+    enabled: input.enabled ?? true,
+    trustPolicy: input.trustPolicy ?? 'hash-only',
+    indexVersion: null,
+    sequence: null,
+    generatedAt: null,
+    lastSync: null,
+    etag: null,
+    indexHash: null,
+  }
+  return state.repositories[id]
+}
+
+export function removeRepository(state, id) {
+  const repository = requireRecord(state.repositories, id, 'repository')
+  delete state.repositories[id]
+  return repository
+}

@@ -4,7 +4,7 @@ import {
 import { dirname, join, resolve } from 'node:path'
 import { canonicalJson, contentHash, deepClone, newTransactionId, redactSecrets } from './canonical.js'
 import { StateBusyError, StaleRevisionError, ValidationError } from './errors.js'
-import { emptyState, validateState } from './state-schema.js'
+import { CURRENT_SCHEMA_VERSION, emptyState, validateState } from './state-schema.js'
 
 const STATE_FILENAME = 'state.json'
 const JOURNAL_FILENAME = 'transaction-intent.json'
@@ -83,6 +83,35 @@ export class StateStore {
       throw new ValidationError(`state file is not valid JSON: ${error.message}`)
     }
     return validateState(state, this.validationOptions())
+  }
+
+  async migrate() {
+    const release = await this.acquireLock()
+    try {
+      const raw = JSON.parse(await readFile(this.statePath, 'utf8'))
+      if (!Number.isInteger(raw.schemaVersion)) throw new ValidationError('schemaVersion must be an integer')
+      if (raw.schemaVersion > CURRENT_SCHEMA_VERSION) {
+        return validateState(raw, this.validationOptions())
+      }
+      let migrated = raw
+      while (migrated.schemaVersion < CURRENT_SCHEMA_VERSION) {
+        if (migrated.schemaVersion === 1) {
+          migrated = { ...migrated, schemaVersion: 2, repositories: {} }
+        } else {
+          throw new ValidationError(`no migration exists from schema ${migrated.schemaVersion}`)
+        }
+      }
+      validateState(migrated, this.validationOptions())
+      if (migrated.schemaVersion === raw.schemaVersion) return migrated
+      const temporary = join(this.root, `.state.migrate-${newTransactionId()}.tmp`)
+      await writeFile(temporary, canonicalJson(migrated), { flag: 'wx', mode: 0o600 })
+      await fsyncFile(temporary)
+      await rename(temporary, this.statePath)
+      await fsyncDirectory(this.root)
+      return migrated
+    } finally {
+      await release()
+    }
   }
 
   async recoverInterruptedTransaction() {

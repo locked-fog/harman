@@ -58,9 +58,10 @@ async function killAtStage(root, stage) {
 test('initializes strict state with private permissions and stable reread', async () => {
   const { root, store } = await fixture()
   const state = await store.read()
-  assert.equal(state.schemaVersion, 1)
+  assert.equal(state.schemaVersion, 2)
   assert.equal(state.revision, 0)
   assert.deepEqual(state.packages, {})
+  assert.deepEqual(state.repositories, {})
   assert.equal((await stat(join(root, 'state.json'))).mode & 0o777, 0o600)
   assert.deepEqual(await store.initialize(), state)
 })
@@ -178,6 +179,19 @@ test('future schema is refused without mutating it', async () => {
   await writeFile(join(root, 'state.json'), JSON.stringify(state) + '\n')
   await assert.rejects(store.read(), error => error instanceof UnsupportedSchemaError)
   assert.match(await readFile(join(root, 'state.json'), 'utf8'), /"schemaVersion":99/)
+})
+
+test('schema v1 requires and supports an explicit v1 to v2 migration', async () => {
+  const { root, store } = await fixture()
+  const state = await store.read()
+  delete state.repositories
+  state.schemaVersion = 1
+  await writeFile(join(root, 'state.json'), JSON.stringify(state) + '\n')
+  await assert.rejects(store.read(), error => error instanceof UnsupportedSchemaError)
+  const migrated = await store.migrate()
+  assert.equal(migrated.schemaVersion, 2)
+  assert.deepEqual(migrated.repositories, {})
+  assert.equal((await store.read()).revision, 0)
 })
 
 test('managed resource must remain within managed root', async () => {

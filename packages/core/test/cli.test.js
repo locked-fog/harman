@@ -29,11 +29,12 @@ test('state init and show expose stable JSON summaries', async () => {
   assert.equal(initialized.code, 0)
   assert.deepEqual(JSON.parse(initialized.stdout), {
     home,
-    schemaVersion: 1,
+    schemaVersion: 2,
     revision: 0,
     packages: 0,
     resources: 0,
     profiles: 0,
+    repositories: 0,
     runtimes: 0,
     auditEvents: 0,
   })
