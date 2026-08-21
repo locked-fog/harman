@@ -242,7 +242,7 @@ function cssModulesPlugin() {
         const mapping = Object.fromEntries(names.map(name => [name, `${hash}_${name}`]))
         let css = source
         for (const name of names) css = css.replaceAll(`.${name}`, `.${mapping[name]}`)
-        const tagId = `${sourceBridge}/src/client/HarmanSection.module.css`
+        const tagId = '@harman/dsh-bridge/HarmanSection.module.css'
         const contents = [
           `const css = ${JSON.stringify(css)}`,
           `const tagId = ${JSON.stringify(tagId)}`,
@@ -400,13 +400,17 @@ await build({
   alias: { '@deepseek-ai/dsh-type-meta': '@deepseek-ai/dsh-typert-protocol' },
   sourcemap: false,
   legalComments: 'none',
+  minify: true,
 })
 const hostBundlePath = join(generatedDirectory, 'index.js')
 const hostBundle = await readFile(hostBundlePath, 'utf8')
-await writeFile(hostBundlePath, hostBundle.replace(
-  'import { GatewayService, Remote } from "@deepseek-ai/dsh-typert-protocol"',
-  'import { TypertRemoteService as GatewayService, Remote } from "@deepseek-ai/dsh-typert-protocol"',
-))
+const patchedHostBundle = hostBundle.replace(
+  /import\{GatewayService( as [A-Za-z_$][\w$]*)?,Remote( as [A-Za-z_$][\w$]*)?\}from"@deepseek-ai\/dsh-typert-protocol"/,
+  (_, gatewayAlias = '', remoteAlias = '') =>
+    `import{TypertRemoteService${gatewayAlias},Remote${remoteAlias}}from"@deepseek-ai/dsh-typert-protocol"`,
+)
+if (patchedHostBundle === hostBundle) throw new Error('Host bundle protocol import normalization did not match')
+await writeFile(hostBundlePath, patchedHostBundle)
 const clientResult = await build({
   entryPoints: [join(tempBridge, 'src', 'client', 'index.tsx')],
   bundle: true,
@@ -419,6 +423,7 @@ const clientResult = await build({
   write: false,
   sourcemap: false,
   legalComments: 'none',
+  minify: true,
 })
 if (clientResult.outputFiles?.length !== 1) throw new Error('esbuild did not return one client bundle')
 await writeFile(join(generatedDirectory, 'client.js'), moduleLoaderBundle(clientResult.outputFiles[0].text))
