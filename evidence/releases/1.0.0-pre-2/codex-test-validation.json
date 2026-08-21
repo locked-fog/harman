@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "release": "1.0.0-pre-2",
+  "sourceCommit": "4b8eb32f6dbf7b91dfea7bf01a05c386ff9d6ede",
+  "remote": {
+    "hostAlias": "codex-test",
+    "kernel": "Linux archgo 7.1.8-zen1-3-zen x86_64",
+    "node": "v26.7.0",
+    "packageManager": "pnpm 11.3.0",
+    "snapshot": null,
+    "snapshotReason": "Only disposable user-space workspaces were changed; no system package, /etc, /usr, service, kernel, or browser installation was performed.",
+    "reboot": false
+  },
+  "tests": [
+    {
+      "id": "core-sandbox",
+      "command": "HARMAN_REQUIRE_SANDBOX=1 npm test",
+      "result": "PASS",
+      "tests": 66,
+      "passed": 66,
+      "failed": 0
+    },
+    {
+      "id": "entrypoint-and-core-check",
+      "command": "npm run check",
+      "result": "PASS",
+      "tests": 66,
+      "passed": 66,
+      "failed": 0
+    },
+    {
+      "id": "upgrade-uninstall-non-harman",
+      "command": "user-prefix install, repeat install as upgrade, state init, uninstall, and unrelated prefix preservation",
+      "result": "PASS",
+      "installedVersion": "1.0.0-pre-2",
+      "statePreserved": true,
+      "unrelatedPrefixStatePreserved": true
+    },
+    {
+      "id": "stock-dsh-latest",
+      "command": "@deepseek-ai/dsh@0.1.1-rc.1 --version and web profile --dump-config",
+      "result": "PASS",
+      "rootGenerated": true,
+      "rootRewritten": true,
+      "privateCachePreserved": true
+    },
+    {
+      "id": "community-plugin-path",
+      "command": "stock DSH web profile composition with community-plugin@1.0.0 dsh.bundle patch",
+      "result": "PASS",
+      "markerComposed": true,
+      "harmanBridgeNotRequired": true
+    }
+  ],
+  "persistentRemoteChanges": "Disposable workspaces under ~/test-work/harman-pre2 and ~/test-work/dsh-latest-pre2-pnpm remain for evidence; no system-level changes were left by this run."
+}

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "release": "1.0.0-pre-2",
+  "source": {
+    "package": "@deepseek-ai/dsh",
+    "version": "0.1.1-rc.1",
+    "tarball": "https://registry.npmjs.org/@deepseek-ai/dsh/-/dsh-0.1.1-rc.1.tgz",
+    "sha256": "c58c1e358419c8907cbb6adb43065c3c1e824042489ab0ad917e95e0a0418056",
+    "integrity": "sha512-HVauMT0F7MWUctkxzBcu5PMFc8j0lm0kX+4IbcUsA7Oh+/xv7xhigEDP0SaSOM/kR48U/BldHbZru116DcZz0w=="
+  },
+  "observedModule": {
+    "path": "lib/profile-boot-DG5t9aNs.js",
+    "sha256": "f83ffea6a4d30cfbe02b41dabcc05104c4ad27bf79c74f601f0ddb6ccdf88969",
+    "symbols": [
+      "PROFILE_ROOT_FILENAME",
+      "PROFILE_ROOT_CONFIG",
+      "prepareProfile",
+      "composeProfile",
+      "runProfile"
+    ],
+    "facts": [
+      "PROFILE_ROOT_FILENAME is cordis.yml",
+      "prepareProfile rewrites the empty derived root on every profile preparation",
+      "composeProfile applies bundle patches, the profile cordis.patch.yml, home patches, and overlays",
+      "the root file documents that cordis.patch.yml, not cordis.yml, is the user input"
+    ]
+  },
+  "contract": {
+    "profileRoot": {
+      "path": "profiles/<profile>/cordis.yml",
+      "owner": "DSH",
+      "role": "derived profile root",
+      "authoritative": false,
+      "lifecycle": "rewritten by DSH profile preparation/boot"
+    },
+    "profilePatch": {
+      "path": "profiles/<profile>/cordis.patch.yml",
+      "owner": "Harman materialization input",
+      "role": "profile-local patch layer",
+      "authoritative": true
+    },
+    "cache": {
+      "pathPattern": "<DSH_HOME>/cache/**",
+      "owner": "DSH",
+      "role": "private rebuildable runtime state",
+      "authoritative": false,
+      "harmanRematerialization": "preserve when outside .harman-managed.json"
+    },
+    "harmanView": {
+      "managedPaths": [
+        ".harman-managed.json",
+        "harman.lock.json",
+        "profiles/harman"
+      ],
+      "rule": "replace the managed materialized view atomically; do not copy a stale DSH-derived cordis.yml back into it"
+    }
+  },
+  "codexTest": {
+    "host": "codex-test",
+    "dshVersion": "0.1.1-rc.1",
+    "node": "v26.7.0",
+    "rootCreated": true,
+    "rootRewrittenAfterSentinel": true,
+    "rootSha256": "c300dcf2ebc5f02062d6591268d29d3db6fe45e0cb138f5467276fe2ba06076e",
+    "privateCacheSentinelPreserved": true,
+    "communityBundle": "community-plugin@1.0.0",
+    "communityMarkerComposed": true,
+    "profileDumpBytes": {
+      "default": 15796,
+      "full": 15796
+    }
+  }
+}
