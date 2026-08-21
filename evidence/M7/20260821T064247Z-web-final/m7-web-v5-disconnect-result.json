@@ -1,0 +1,498 @@
+{
+  "url": "http://127.0.0.1:3080/",
+  "title": "DeepSeek Harness",
+  "bodyText": "New Session\nWorkspaces\nNo sessions yet\nSettings\nSettings\nGeneral\nModels\nPlugins\nAgent presets\nHarman\nOpen configuration file\nClose\nH\nHarman\nControl plane\nOverview\nPackages\nResources\nProfiles\nRuntime\nRepositories\nDiagnostics\nDaemon ready\n\nAGENT ENVIRONMENT MANAGER\n\nProfiles\nRefresh state\ninternal: STALE_REVISION: state revision changed: expected 8, found 9\nrev 9\nIsolated Profiles\n\nEvery Profile owns an independent DSH_HOME and reproducible lock.\n\nCreate Web profile\nCreate Web profile\nsource profile\nnew profile\nClone\nprofile\nnew name\nRename\nprofile\nserver export path\nExport\nserver bundle path\nnew profile name\nRestore\nleft profile\nright profile\nDiff\n1 profiles\n1 records\nNAME\tAPP\tRUNTIMESTATUS\tACTIVE\tACTIONS\nweb-final\tweb\tcompatible\ttrue\tDeactivateDelete\nInto the Unknown\nPreview\nChoose workspace\nStandard mode\nInternal Testing Notice\n\nDeepSeek Harness 0.1 remains in testing for Harness developers. Many areas need further improvement, and we welcome feedback from the developer community. DeepSeek Harness's core plugins and foundational APIs will continue to evolve rapidly over the coming months.\n\nWe look forward to exploring the limits of intelligence with developers around the world, building on open-source, open, reusable, and composable infrastructure. We welcome Harness developers everywhere to join the DSH plugin ecosystem.\n\nContinue",
+  "controls": [
+    {
+      "tag": "BUTTON",
+      "text": "New session",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Collapse sidebar",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "New Session",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Search sessions",
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "text": "Search sessions...",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "View options",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Add workspace",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Settings",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "General",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Models",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Plugins",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Agent presets",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Harman",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Open configuration file",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Close",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Overview",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Packages",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Resources",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Profiles",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Runtime",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Repositories",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Diagnostics",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Refresh state",
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "text": "profile name",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Create Web profile",
+      "disabled": true
+    },
+    {
+      "tag": "INPUT",
+      "text": "source profile",
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "text": "new profile",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Clone",
+      "disabled": true
+    },
+    {
+      "tag": "INPUT",
+      "text": "profile",
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "text": "new name",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Rename",
+      "disabled": true
+    },
+    {
+      "tag": "INPUT",
+      "text": "profile",
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "text": "server export path",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Export",
+      "disabled": true
+    },
+    {
+      "tag": "INPUT",
+      "text": "server bundle path",
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "text": "new profile name",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Restore",
+      "disabled": true
+    },
+    {
+      "tag": "INPUT",
+      "text": "left profile",
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "text": "right profile",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Diff",
+      "disabled": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Deactivate",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Delete",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Choose workspace",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Standard mode",
+      "disabled": false
+    },
+    {
+      "tag": "TEXTAREA",
+      "text": "Choose workspace",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Commands",
+      "disabled": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Send message",
+      "disabled": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Continue",
+      "disabled": false
+    }
+  ],
+  "errors": [],
+  "browserEvents": [],
+  "actions": [
+    {
+      "name": "refresh-after-daemon-stop",
+      "value": true,
+      "bodyText": "New Session\nWorkspaces\nNo sessions yet\nSettings\nSettings\nGeneral\nModels\nPlugins\nAgent presets\nHarman\nOpen configuration file\nClose\nH\nHarman\nControl plane\nOverview\nPackages\nResources\nProfiles\nRuntime\nRepositories\nDiagnostics\nRead-only\n\nAGENT ENVIRONMENT MANAGER\n\nProfiles\nRefresh state\ninternal: connect ENOENT /home/codexlab/test-work/harman/m7-web-home-v5/daemon.sock\nrev 9\nIsolated Profiles\n\nEvery Profile owns an independent DSH_HOME and reproducible lock.\n\nCreate Web profile\nCreate Web profile\nsource profile\nnew profile\nClone\nprofile\nnew name\nRename\nprofile\nserver export path\nExport\nserver bundle path\nnew profile name\nRestore\nleft profile\nright profile\nDiff\n1 profiles\n1 records\nNAME\tAPP\tRUNTIMESTATUS\tACTIVE\tACTIONS\nweb-final\tweb\tcompatible\ttrue\tDeactivateDelete\nInto the Unknown\nPreview\nChoose workspace\nStandard mode\nInternal Testing Notice\n\nDeepSeek Harness 0.1 remains in testing for Harness developers. Many areas need further improvement, and we welcome feedback from the developer community. DeepSeek Harness's core plugins and foundational APIs will continue to evolve rapidly over the coming months.\n\nWe look forward to exploring the limits of intelligence with developers around the world, building on open-source, open, reusable, and composable infrastructure. We welcome Harness developers everywhere to join the DSH plugin ecosystem.\n\nContinue",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "text": "New session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Collapse sidebar",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "New Session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Search sessions",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "Search sessions...",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "View options",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Add workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Settings",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "General",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Models",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Plugins",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Agent presets",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Harman",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Open configuration file",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Close",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Overview",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Packages",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Resources",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Profiles",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Runtime",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Repositories",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Diagnostics",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Refresh state",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "profile name",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Create Web profile",
+          "disabled": true
+        },
+        {
+          "tag": "INPUT",
+          "text": "source profile",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "new profile",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Clone",
+          "disabled": true
+        },
+        {
+          "tag": "INPUT",
+          "text": "profile",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "new name",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Rename",
+          "disabled": true
+        },
+        {
+          "tag": "INPUT",
+          "text": "profile",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "server export path",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Export",
+          "disabled": true
+        },
+        {
+          "tag": "INPUT",
+          "text": "server bundle path",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "new profile name",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Restore",
+          "disabled": true
+        },
+        {
+          "tag": "INPUT",
+          "text": "left profile",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "right profile",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Diff",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Deactivate",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Delete",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Standard mode",
+          "disabled": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Commands",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Send message",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Continue",
+          "disabled": false
+        }
+      ]
+    }
+  ]
+}

@@ -17,6 +17,9 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap { 'settings.harman': 'nav' }
 }
 
+// `remote.harman` is created by this plugin's own mount.  Declaring it here
+// would make the plugin wait for a service that cannot exist until `apply`
+// runs; read the dynamic namespace through `ctx.get()` after mounting instead.
 export const inject = ['slots', 'locale', 'remote']
 
 async function unwrap<T>(promise: Promise<{ ok: boolean; value?: T; error?: { code: string; message: string } }>): Promise<T> {
@@ -27,7 +30,7 @@ async function unwrap<T>(promise: Promise<{ ok: boolean; value?: T; error?: { co
 
 export async function apply(ctx: ClientContext): Promise<() => Promise<void>> {
   const disposeRemote = await ctx.remote.$mount(harmanRemote)
-  const remote = (ctx.remote as unknown as { harman: RemoteFace }).harman
+  const remote = ctx.get('remote.harman') as RemoteFace
   const localeDispose = ctx.locale.register('settings.harman', { zh: { nav: 'Harman' }, en: { nav: 'Harman' } })
   const slotDispose = ctx.slots.inject('settings.section', () => ctx.slots.register({
     name: 'settings.section', id: 'harman', order: 35, label: () => 'Harman',
@@ -62,11 +65,11 @@ function HarmanSection({ remote }: { remote?: RemoteFace }): ReactNode {
   const [pending, setPending] = useState<{ action: string; input: RecordValue; preview: RecordValue } | null>(null)
   const [inspector, setInspector] = useState<{ title: string; value: unknown } | null>(null)
 
-  async function refresh(): Promise<void> {
+  async function refresh(announce = true): Promise<void> {
     if (!remote) return
     setStatus('loading')
-    try { setSnapshot(await unwrap(remote.snapshot())); setStatus('ready'); setMessage('State is current.') }
-    catch (error) { setStatus('offline'); setMessage(error instanceof Error ? error.message : String(error)) }
+    try { setSnapshot(await unwrap(remote.snapshot())); setStatus('ready'); if (announce) setMessage('State is current.') }
+    catch (error) { setStatus('offline'); if (announce) setMessage(error instanceof Error ? error.message : String(error)) }
   }
   useEffect(() => { void refresh() }, [remote])
 
@@ -88,7 +91,12 @@ function HarmanSection({ remote }: { remote?: RemoteFace }): ReactNode {
     try {
       const result = await unwrap<RecordValue>(remote.execute(pending.action, pending.input, snapshot.revision, true))
       setSnapshot(result.snapshot); setPending(null); setStatus('ready'); setMessage(`Committed ${pending.action}.`)
-    } catch (error) { setPending(null); setStatus('ready'); setMessage(error instanceof Error ? error.message : String(error)); await refresh() }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      setPending(null); setStatus('ready'); setMessage(message)
+      await refresh(false)
+      setMessage(message)
+    }
   }
 
   const active = useMemo(() => snapshot?.profiles?.find((item: RecordValue) => item.active) ?? snapshot?.profiles?.[0], [snapshot])

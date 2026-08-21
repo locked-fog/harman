@@ -1,0 +1,872 @@
+{
+  "url": "http://127.0.0.1:3080/",
+  "title": "DeepSeek Harness",
+  "bodyText": "New Session\nWorkspaces\nNo sessions yet\nSettings\nSettings\nGeneral\nModels\nPlugins\nAgent presets\nHarman\nOpen configuration file\nClose\nH\nHarman\nControl plane\nOverview\nPackages\nResources\nProfiles\nRuntime\nRepositories\nDiagnostics\nDaemon ready\n\nAGENT ENVIRONMENT MANAGER\n\nOverview\nRefresh state\nState is current.\nrev 11\n\nCURRENT ENVIRONMENT\n\nweb-final\n\nweb · latest\n\nDSH Runtime\n0.1.0-rc.7\ncompatible\nPackages\n1\nResources\n0\nProfiles\n1\nTrusted repos\n1\nRecent audit\n8 records\nREVISION\tACTION\tACTOR\n11\tprofile.run.start\tcli\n10\tprofile.run.stop\tcli\n9\trepository.configure\tcli\n8\tprofile.activate\tcli\n7\tprofile.run.start\tcli\n6\tprofile.create\tcli\n5\truntime.latest\tcli\n4\truntime.register\tcli\nInto the Unknown\nPreview\nChoose workspace\nStandard mode",
+  "controls": [
+    {
+      "tag": "BUTTON",
+      "text": "New session",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Collapse sidebar",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "New Session",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Search sessions",
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "text": "Search sessions...",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "View options",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Add workspace",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Settings",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "General",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Models",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Plugins",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Agent presets",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Harman",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Open configuration file",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Close",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Overview",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Packages",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Resources",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Profiles",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Runtime",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Repositories",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Diagnostics",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Refresh state",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Choose workspace",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Standard mode",
+      "disabled": false
+    },
+    {
+      "tag": "TEXTAREA",
+      "text": "Choose workspace",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Commands",
+      "disabled": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Send message",
+      "disabled": true
+    }
+  ],
+  "errors": [],
+  "browserEvents": [
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "recommendation",
+          "level": "verbose",
+          "text": "[DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o",
+          "timestamp": 1787294301331.104,
+          "url": "http://127.0.0.1:3080/",
+          "args": [
+            {
+              "type": "object",
+              "subtype": "node",
+              "className": "HTMLInputElement",
+              "description": "input.zGbnIq_input",
+              "objectId": "-3041735578664010043.11.1"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "actions": [
+    {
+      "name": "refresh-after-daemon-restart",
+      "value": true,
+      "bodyText": "New Session\nWorkspaces\nNo sessions yet\nSettings\nSettings\nGeneral\nModels\nPlugins\nAgent presets\nHarman\nOpen configuration file\nClose\nH\nHarman\nControl plane\nOverview\nPackages\nResources\nProfiles\nRuntime\nRepositories\nDiagnostics\nDaemon ready\n\nAGENT ENVIRONMENT MANAGER\n\nOverview\nRefresh state\nState is current.\nrev 11\n\nCURRENT ENVIRONMENT\n\nweb-final\n\nweb · latest\n\nDSH Runtime\n0.1.0-rc.7\ncompatible\nPackages\n1\nResources\n0\nProfiles\n1\nTrusted repos\n1\nRecent audit\n8 records\nREVISION\tACTION\tACTOR\n11\tprofile.run.start\tcli\n10\tprofile.run.stop\tcli\n9\trepository.configure\tcli\n8\tprofile.activate\tcli\n7\tprofile.run.start\tcli\n6\tprofile.create\tcli\n5\truntime.latest\tcli\n4\truntime.register\tcli\nInto the Unknown\nPreview\nChoose workspace\nStandard mode",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "text": "New session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Collapse sidebar",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "New Session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Search sessions",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "Search sessions...",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "View options",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Add workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Settings",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "General",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Models",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Plugins",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Agent presets",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Harman",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Open configuration file",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Close",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Overview",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Packages",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Resources",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Profiles",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Runtime",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Repositories",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Diagnostics",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Refresh state",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Standard mode",
+          "disabled": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Commands",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Send message",
+          "disabled": true
+        }
+      ]
+    },
+    {
+      "name": "accessibility-probe",
+      "value": {
+        "unlabeledControls": 0,
+        "statusRole": "status",
+        "statusLive": "polite",
+        "statusText": "State is current.\nrev 11",
+        "mainLandmark": true,
+        "navLabel": "Harman sections"
+      },
+      "bodyText": "New Session\nWorkspaces\nNo sessions yet\nSettings\nSettings\nGeneral\nModels\nPlugins\nAgent presets\nHarman\nOpen configuration file\nClose\nH\nHarman\nControl plane\nOverview\nPackages\nResources\nProfiles\nRuntime\nRepositories\nDiagnostics\nDaemon ready\n\nAGENT ENVIRONMENT MANAGER\n\nOverview\nRefresh state\nState is current.\nrev 11\n\nCURRENT ENVIRONMENT\n\nweb-final\n\nweb · latest\n\nDSH Runtime\n0.1.0-rc.7\ncompatible\nPackages\n1\nResources\n0\nProfiles\n1\nTrusted repos\n1\nRecent audit\n8 records\nREVISION\tACTION\tACTOR\n11\tprofile.run.start\tcli\n10\tprofile.run.stop\tcli\n9\trepository.configure\tcli\n8\tprofile.activate\tcli\n7\tprofile.run.start\tcli\n6\tprofile.create\tcli\n5\truntime.latest\tcli\n4\truntime.register\tcli\nInto the Unknown\nPreview\nChoose workspace\nStandard mode",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "text": "New session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Collapse sidebar",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "New Session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Search sessions",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "Search sessions...",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "View options",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Add workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Settings",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "General",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Models",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Plugins",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Agent presets",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Harman",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Open configuration file",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Close",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Overview",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Packages",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Resources",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Profiles",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Runtime",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Repositories",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Diagnostics",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Refresh state",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Standard mode",
+          "disabled": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Commands",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Send message",
+          "disabled": true
+        }
+      ]
+    },
+    {
+      "name": "keyboard-focus-probe",
+      "value": {
+        "focused": true,
+        "label": "Refresh state"
+      },
+      "bodyText": "New Session\nWorkspaces\nNo sessions yet\nSettings\nSettings\nGeneral\nModels\nPlugins\nAgent presets\nHarman\nOpen configuration file\nClose\nH\nHarman\nControl plane\nOverview\nPackages\nResources\nProfiles\nRuntime\nRepositories\nDiagnostics\nDaemon ready\n\nAGENT ENVIRONMENT MANAGER\n\nOverview\nRefresh state\nState is current.\nrev 11\n\nCURRENT ENVIRONMENT\n\nweb-final\n\nweb · latest\n\nDSH Runtime\n0.1.0-rc.7\ncompatible\nPackages\n1\nResources\n0\nProfiles\n1\nTrusted repos\n1\nRecent audit\n8 records\nREVISION\tACTION\tACTOR\n11\tprofile.run.start\tcli\n10\tprofile.run.stop\tcli\n9\trepository.configure\tcli\n8\tprofile.activate\tcli\n7\tprofile.run.start\tcli\n6\tprofile.create\tcli\n5\truntime.latest\tcli\n4\truntime.register\tcli\nInto the Unknown\nPreview\nChoose workspace\nStandard mode",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "text": "New session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Collapse sidebar",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "New Session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Search sessions",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "Search sessions...",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "View options",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Add workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Settings",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "General",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Models",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Plugins",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Agent presets",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Harman",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Open configuration file",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Close",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Overview",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Packages",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Resources",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Profiles",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Runtime",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Repositories",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Diagnostics",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Refresh state",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Standard mode",
+          "disabled": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Commands",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Send message",
+          "disabled": true
+        }
+      ]
+    },
+    {
+      "name": "narrow-viewport",
+      "value": {
+        "width": 390,
+        "height": 844,
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "horizontalOverflow": false
+      },
+      "bodyText": "Settings\nGeneral\nModels\nPlugins\nAgent presets\nHarman\nOpen configuration file\nClose\nH\nHarman\n\nAGENT ENVIRONMENT MANAGER\n\nOverview\nRefresh state\nState is current.\nrev 11\n\nCURRENT ENVIRONMENT\n\nweb-final\n\nweb · latest\n\nDSH Runtime\n0.1.0-rc.7\ncompatible\nPackages\n1\nResources\n0\nProfiles\n1\nTrusted repos\n1\nRecent audit\n8 records\nREVISION\tACTION\tACTOR\n11\tprofile.run.start\tcli\n10\tprofile.run.stop\tcli\n9\trepository.configure\tcli\n8\tprofile.activate\tcli\n7\tprofile.run.start\tcli\n6\tprofile.create\tcli\n5\truntime.latest\tcli\n4\truntime.register\tcli\nInto the Unknown\nPreview\nChoose workspace\nStandard mode",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "text": "Open sidebar",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "New session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Add workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Search sessions",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "General",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Models",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Plugins",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Agent presets",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Harman",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Open configuration file",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Close",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Refresh state",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Standard mode",
+          "disabled": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Commands",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Send message",
+          "disabled": true
+        }
+      ]
+    },
+    {
+      "name": "reset-viewport",
+      "value": {
+        "width": 1440,
+        "height": 957
+      },
+      "bodyText": "New Session\nWorkspaces\nNo sessions yet\nSettings\nSettings\nGeneral\nModels\nPlugins\nAgent presets\nHarman\nOpen configuration file\nClose\nH\nHarman\nControl plane\nOverview\nPackages\nResources\nProfiles\nRuntime\nRepositories\nDiagnostics\nDaemon ready\n\nAGENT ENVIRONMENT MANAGER\n\nOverview\nRefresh state\nState is current.\nrev 11\n\nCURRENT ENVIRONMENT\n\nweb-final\n\nweb · latest\n\nDSH Runtime\n0.1.0-rc.7\ncompatible\nPackages\n1\nResources\n0\nProfiles\n1\nTrusted repos\n1\nRecent audit\n8 records\nREVISION\tACTION\tACTOR\n11\tprofile.run.start\tcli\n10\tprofile.run.stop\tcli\n9\trepository.configure\tcli\n8\tprofile.activate\tcli\n7\tprofile.run.start\tcli\n6\tprofile.create\tcli\n5\truntime.latest\tcli\n4\truntime.register\tcli\nInto the Unknown\nPreview\nChoose workspace\nStandard mode",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "text": "New session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Collapse sidebar",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "New Session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Search sessions",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "Search sessions...",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "View options",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Add workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Settings",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "General",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Models",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Plugins",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Agent presets",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Harman",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Open configuration file",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Close",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Overview",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Packages",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Resources",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Profiles",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Runtime",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Repositories",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Diagnostics",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Refresh state",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Standard mode",
+          "disabled": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Commands",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Send message",
+          "disabled": true
+        }
+      ]
+    }
+  ]
+}

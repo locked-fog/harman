@@ -148,6 +148,21 @@ test('deterministic solver resolves dependencies, DSH compatibility, holds, and 
   assert.throws(() => solvePackages([{ repository, index: catalogIndex }], [{ name: 'demo', range: '^3.0.0' }]), ConflictError)
 })
 
+test('deterministic solver rejects dependency cycles with stable structured diagnostics', () => {
+  const repository = { id: 'main', priority: 10, enabled: true }
+  const catalogIndex = index()
+  catalogIndex.packages = {
+    alpha: [{ version: '1.0.0', artifact: { url: './alpha.tgz', sha256: 'a'.repeat(64) }, dependencies: { beta: '^1.0.0' } }],
+    beta: [{ version: '1.0.0', artifact: { url: './beta.tgz', sha256: 'b'.repeat(64) }, dependencies: { alpha: '^1.0.0' } }],
+  }
+  assert.throws(
+    () => solvePackages([{ repository, index: catalogIndex }], [{ name: 'alpha' }]),
+    error => error instanceof ConflictError
+      && error.message === 'package dependency cycle detected'
+      && JSON.stringify(error.details.cycles) === JSON.stringify([['alpha', 'beta', 'alpha']]),
+  )
+})
+
 test('tar inspection rejects traversal, links, duplicate paths, and checksum damage', async () => {
   assert.throws(() => inspectTarGz(tar([{ name: 'package/../../escape', body: 'x' }])), ValidationError)
   assert.throws(() => inspectTarGz(tar([{ name: 'package/link', type: '2' }])), ValidationError)

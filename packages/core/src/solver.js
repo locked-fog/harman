@@ -41,12 +41,44 @@ function supportsEnvironment(candidate, options) {
   return true
 }
 
+function dependencyCycles(selected) {
+  const cycles = []
+  const seen = new Set()
+  const active = []
+  const activeIndex = new Map()
+
+  function visit(name) {
+    if (activeIndex.has(name)) {
+      const cycle = [...active.slice(activeIndex.get(name)), name]
+      const body = cycle.slice(0, -1)
+      const rotations = body.map((_, index) => [...body.slice(index), ...body.slice(0, index)])
+      rotations.sort((left, right) => left.join('\0').localeCompare(right.join('\0')))
+      const canonical = [...rotations[0], rotations[0][0]]
+      const key = canonical.join(' -> ')
+      if (!cycles.some(item => item.join(' -> ') === key)) cycles.push(canonical)
+      return
+    }
+    if (seen.has(name)) return
+    activeIndex.set(name, active.length)
+    active.push(name)
+    const candidate = selected.get(name)
+    for (const dependency of Object.keys(candidate?.entry.dependencies ?? {}).sort()) visit(dependency)
+    active.pop()
+    activeIndex.delete(name)
+    seen.add(name)
+  }
+
+  for (const name of [...selected.keys()].sort()) visit(name)
+  return cycles.sort((left, right) => left.join('\0').localeCompare(right.join('\0')))
+}
+
 export function solvePackages(sources, requests, options = {}) {
   const catalog = buildCatalog(sources)
   const constraints = new Map()
   for (const request of requests) addConstraint(constraints, request.name, request.range ?? '*', 'explicit')
   for (const [name, version] of Object.entries(options.holds ?? {})) addConstraint(constraints, name, version, 'hold')
   const rejected = []
+  const rejectedCycles = []
 
   function visit(selected, activeConstraints) {
     for (const [name, ranges] of activeConstraints) {
@@ -54,7 +86,14 @@ export function solvePackages(sources, requests, options = {}) {
       if (already !== undefined && !ranges.every(item => satisfies(already.entry.version, item.range))) return null
     }
     const unresolved = [...activeConstraints.keys()].filter(name => !selected.has(name))
-    if (unresolved.length === 0) return { selected, constraints: activeConstraints }
+    if (unresolved.length === 0) {
+      const cycles = dependencyCycles(selected)
+      if (cycles.length > 0) {
+        rejectedCycles.push(...cycles)
+        return null
+      }
+      return { selected, constraints: activeConstraints }
+    }
     unresolved.sort((a, b) => {
       const aCount = (catalog.get(a) ?? []).length
       const bCount = (catalog.get(b) ?? []).length
@@ -85,6 +124,10 @@ export function solvePackages(sources, requests, options = {}) {
   }
 
   const solved = visit(new Map(), constraints)
+  if (solved === null && rejectedCycles.length > 0) {
+    const cycles = [...new Map(rejectedCycles.map(cycle => [cycle.join(' -> '), cycle])).values()]
+    throw new ConflictError('package dependency cycle detected', { cycles, rejected })
+  }
   if (solved === null) throw new ConflictError('package constraints are unsatisfiable', { rejected })
   const packages = [...solved.selected.values()].sort((a, b) => a.entry.name.localeCompare(b.entry.name)).map(candidate => ({
     name: candidate.entry.name,

@@ -1,0 +1,1587 @@
+{
+  "url": "http://127.0.0.1:3080/",
+  "title": "DeepSeek Harness",
+  "bodyText": "New Session\nWorkspaces\nNo sessions yet\nSettings\nInto the Unknown\nPreview\nChoose workspace\nStandard mode\nInternal Testing Notice\n\nDeepSeek Harness 0.1 remains in testing for Harness developers. Many areas need further improvement, and we welcome feedback from the developer community. DeepSeek Harness's core plugins and foundational APIs will continue to evolve rapidly over the coming months.\n\nWe look forward to exploring the limits of intelligence with developers around the world, building on open-source, open, reusable, and composable infrastructure. We welcome Harness developers everywhere to join the DSH plugin ecosystem.\n\nContinue",
+  "controls": [
+    {
+      "tag": "BUTTON",
+      "text": "New session",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Collapse sidebar",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "New Session",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Search sessions",
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "text": "Search sessions...",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "View options",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Add workspace",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Settings",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Choose workspace",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Standard mode",
+      "disabled": false
+    },
+    {
+      "tag": "TEXTAREA",
+      "text": "Choose workspace",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Commands",
+      "disabled": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Send message",
+      "disabled": true
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Continue",
+      "disabled": false
+    }
+  ],
+  "errors": [],
+  "browserEvents": [
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "warning",
+        "args": [
+          {
+            "type": "string",
+            "value": "[web-runtime] connection lost, retry #1"
+          }
+        ],
+        "executionContextId": 8,
+        "timestamp": 1787293959797.149,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "loop",
+              "scriptId": "13",
+              "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+              "lineNumber": 115,
+              "columnNumber": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "warning",
+        "args": [
+          {
+            "type": "string",
+            "value": "[web-runtime] connection lost, retry #2"
+          }
+        ],
+        "executionContextId": 8,
+        "timestamp": 1787293960273.226,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "loop",
+              "scriptId": "13",
+              "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+              "lineNumber": 115,
+              "columnNumber": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "warning",
+        "args": [
+          {
+            "type": "string",
+            "value": "[web-runtime] connection lost, retry #3"
+          }
+        ],
+        "executionContextId": 8,
+        "timestamp": 1787293961044.151,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "loop",
+              "scriptId": "13",
+              "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+              "lineNumber": 115,
+              "columnNumber": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "warning",
+        "args": [
+          {
+            "type": "string",
+            "value": "[web-runtime] connection lost, retry #4"
+          }
+        ],
+        "executionContextId": 8,
+        "timestamp": 1787293962636.462,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "loop",
+              "scriptId": "13",
+              "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+              "lineNumber": 115,
+              "columnNumber": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "warning",
+        "args": [
+          {
+            "type": "string",
+            "value": "[web-runtime] connection lost, retry #5"
+          }
+        ],
+        "executionContextId": 8,
+        "timestamp": 1787293966500.511,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "loop",
+              "scriptId": "13",
+              "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+              "lineNumber": 115,
+              "columnNumber": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "warning",
+        "args": [
+          {
+            "type": "string",
+            "value": "[web-runtime] connection lost, retry #6"
+          }
+        ],
+        "executionContextId": 8,
+        "timestamp": 1787293974397.837,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "loop",
+              "scriptId": "13",
+              "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+              "lineNumber": 115,
+              "columnNumber": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "warning",
+        "args": [
+          {
+            "type": "string",
+            "value": "[web-runtime] connection lost, retry #7"
+          }
+        ],
+        "executionContextId": 8,
+        "timestamp": 1787293984237.527,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "loop",
+              "scriptId": "13",
+              "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+              "lineNumber": 115,
+              "columnNumber": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "warning",
+        "args": [
+          {
+            "type": "string",
+            "value": "[web-runtime] connection lost, retry #8"
+          }
+        ],
+        "executionContextId": 8,
+        "timestamp": 1787293994211.03,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "loop",
+              "scriptId": "13",
+              "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+              "lineNumber": 115,
+              "columnNumber": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "warning",
+        "args": [
+          {
+            "type": "string",
+            "value": "[web-runtime] connection lost, retry #9"
+          }
+        ],
+        "executionContextId": 8,
+        "timestamp": 1787294004105.431,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "loop",
+              "scriptId": "13",
+              "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+              "lineNumber": 115,
+              "columnNumber": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "warning",
+        "args": [
+          {
+            "type": "string",
+            "value": "[web-runtime] connection lost, retry #10"
+          }
+        ],
+        "executionContextId": 8,
+        "timestamp": 1787294014106.09,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "loop",
+              "scriptId": "13",
+              "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+              "lineNumber": 115,
+              "columnNumber": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "warning",
+        "args": [
+          {
+            "type": "string",
+            "value": "[web-runtime] connection lost, retry #11"
+          }
+        ],
+        "executionContextId": 8,
+        "timestamp": 1787294019688.735,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "loop",
+              "scriptId": "13",
+              "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+              "lineNumber": 115,
+              "columnNumber": 13
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING",
+          "timestamp": 1787293959797.489,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1213"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.mux' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293960272.292,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10015,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "readWebSocket",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10015,
+                "columnNumber": 19
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.host' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787293960272.46,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293960273.122,
+          "url": "http://127.0.0.1:3080/api/host.describe",
+          "networkRequestId": "156335.1248"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.mux' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293961043.108,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10015,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "readWebSocket",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10015,
+                "columnNumber": 19
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.host' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787293961043.313,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293961044.053,
+          "url": "http://127.0.0.1:3080/api/host.describe",
+          "networkRequestId": "156335.1251"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.mux' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293962636.076,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10015,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "readWebSocket",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10015,
+                "columnNumber": 19
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.host' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787293962636.16,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293962636.422,
+          "url": "http://127.0.0.1:3080/api/host.describe",
+          "networkRequestId": "156335.1254"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293962799.367,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1255"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293965801.735,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1256"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.mux' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293966499.451,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10015,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "readWebSocket",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10015,
+                "columnNumber": 19
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.host' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787293966499.635,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293966500.408,
+          "url": "http://127.0.0.1:3080/api/host.describe",
+          "networkRequestId": "156335.1259"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293968802.932,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1260"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293971804.527,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1261"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.mux' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293974396.749,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10015,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "readWebSocket",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10015,
+                "columnNumber": 19
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.host' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787293974396.959,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293974397.732,
+          "url": "http://127.0.0.1:3080/api/host.describe",
+          "networkRequestId": "156335.1264"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293974805.713,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1265"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293977654.626,
+          "url": "http://127.0.0.1:3080/api/harman/snapshot",
+          "networkRequestId": "156335.1266"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293977807.309,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1267"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293980809.701,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1268"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293983812.611,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1269"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.mux' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293984236.355,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10015,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "readWebSocket",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10015,
+                "columnNumber": 19
+              },
+              {
+                "functionName": "pumpStream",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 128,
+                "columnNumber": 22
+              },
+              {
+                "functionName": "",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 93,
+                "columnNumber": 11
+              },
+              {
+                "functionName": "loop",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 88,
+                "columnNumber": 20
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.host' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787293984236.841,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              },
+              {
+                "functionName": "settle",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 90,
+                "columnNumber": 61
+              },
+              {
+                "functionName": "pumpStream",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 135,
+                "columnNumber": 4
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293984237.364,
+          "url": "http://127.0.0.1:3080/api/host.describe",
+          "networkRequestId": "156335.1272"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293986814.363,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1273"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293989816.037,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1274"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293992817.769,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1275"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.mux' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293994209.918,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10015,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "readWebSocket",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10015,
+                "columnNumber": 19
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.host' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787293994210.113,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293994210.919,
+          "url": "http://127.0.0.1:3080/api/host.describe",
+          "networkRequestId": "156335.1278"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293995819.513,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1279"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787293998820.661,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1280"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787294001822.922,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1281"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787294004105.075,
+          "url": "http://127.0.0.1:3080/api/host.describe",
+          "networkRequestId": "156335.1284"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.mux' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787294004105.235,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.host' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787294004105.26,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787294004824.609,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1285"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787294007826.34,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1286"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787294010828.991,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1287"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787294013830.735,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1288"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787294014105.697,
+          "url": "http://127.0.0.1:3080/api/host.describe",
+          "networkRequestId": "156335.1291"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.mux' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787294014105.848,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.host' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787294014105.899,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787294016832.44,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1292"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787294019688.391,
+          "url": "http://127.0.0.1:3080/api/host.describe",
+          "networkRequestId": "156335.1295"
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.mux' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787294019688.535,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "warning",
+          "text": "WebSocket connection to 'ws://127.0.0.1:3080/api/events.host' failed: WebSocket is closed before the connection is established.",
+          "timestamp": 1787294019688.56,
+          "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+          "lineNumber": 10050,
+          "stackTrace": {
+            "callFrames": [
+              {
+                "functionName": "handleAbort",
+                "scriptId": "13",
+                "url": "http://127.0.0.1:3080/plugins/@deepseek-ai/dsh-client-connection/client.js?rev=e4774927550c",
+                "lineNumber": 10050,
+                "columnNumber": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+          "timestamp": 1787294019833.773,
+          "url": "http://127.0.0.1:3080/plugins/events",
+          "networkRequestId": "156335.1296"
+        }
+      }
+    }
+  ],
+  "actions": [
+    {
+      "name": "open-settings",
+      "value": true,
+      "bodyText": "New Session\nWorkspaces\nNo sessions yet\nSettings\nSettings\nGeneral\nModels\nPlugins\nAgent presets\nHarman\nOpen configuration file\nClose\nAgent preset\nApplies to sessions you start from now on. Running sessions keep the preset they began with.\nStandard mode\nPermission\nChoose the default permission mode for new sessions\nWorkspace Write\nLanguage\nEnglish\nAppearance\nLight\nDark\nSystem\nEnter behavior while busy\nBusy only; Cmd/Ctrl+Enter uses the other behavior\nQueue\nInto the Unknown\nPreview\nChoose workspace\nStandard mode\nInternal Testing Notice\n\nDeepSeek Harness 0.1 remains in testing for Harness developers. Many areas need further improvement, and we welcome feedback from the developer community. DeepSeek Harness's core plugins and foundational APIs will continue to evolve rapidly over the coming months.\n\nWe look forward to exploring the limits of intelligence with developers around the world, building on open-source, open, reusable, and composable infrastructure. We welcome Harness developers everywhere to join the DSH plugin ecosystem.\n\nContinue",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "text": "New session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Collapse sidebar",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "New Session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Search sessions",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "Search sessions...",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "View options",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Add workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Settings",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "General",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Models",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Plugins",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Agent presets",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Harman",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Open configuration file",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Close",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Standard mode",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Workspace Write",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "English",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Light",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Dark",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "System",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Queue",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Standard mode",
+          "disabled": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Commands",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Send message",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Continue",
+          "disabled": false
+        }
+      ]
+    },
+    {
+      "name": "open-harman",
+      "value": true,
+      "bodyText": "New Session\nWorkspaces\nNo sessions yet\nSettings\nSettings\nGeneral\nModels\nPlugins\nAgent presets\nHarman\nOpen configuration file\nClose\nH\nHarman\nControl plane\nOverview\nPackages\nResources\nProfiles\nRuntime\nRepositories\nDiagnostics\nDaemon ready\n\nAGENT ENVIRONMENT MANAGER\n\nOverview\nRefresh state\nState is current.\nrev 11\n\nCURRENT ENVIRONMENT\n\nweb-final\n\nweb · latest\n\nDSH Runtime\n0.1.0-rc.7\ncompatible\nPackages\n1\nResources\n0\nProfiles\n1\nTrusted repos\n1\nRecent audit\n8 records\nREVISION\tACTION\tACTOR\n11\tprofile.run.start\tcli\n10\tprofile.run.stop\tcli\n9\trepository.configure\tcli\n8\tprofile.activate\tcli\n7\tprofile.run.start\tcli\n6\tprofile.create\tcli\n5\truntime.latest\tcli\n4\truntime.register\tcli\nInto the Unknown\nPreview\nChoose workspace\nStandard mode\nInternal Testing Notice\n\nDeepSeek Harness 0.1 remains in testing for Harness developers. Many areas need further improvement, and we welcome feedback from the developer community. DeepSeek Harness's core plugins and foundational APIs will continue to evolve rapidly over the coming months.\n\nWe look forward to exploring the limits of intelligence with developers around the world, building on open-source, open, reusable, and composable infrastructure. We welcome Harness developers everywhere to join the DSH plugin ecosystem.\n\nContinue",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "text": "New session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Collapse sidebar",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "New Session",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Search sessions",
+          "disabled": false
+        },
+        {
+          "tag": "INPUT",
+          "text": "Search sessions...",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "View options",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Add workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Settings",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "General",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Models",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Plugins",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Agent presets",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Harman",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Open configuration file",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Close",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Overview",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Packages",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Resources",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Profiles",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Runtime",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Repositories",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Diagnostics",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Refresh state",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Standard mode",
+          "disabled": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "text": "Choose workspace",
+          "disabled": false
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Commands",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Send message",
+          "disabled": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Continue",
+          "disabled": false
+        }
+      ]
+    }
+  ]
+}

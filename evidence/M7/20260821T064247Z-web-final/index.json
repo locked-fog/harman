@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "sequence": 7,
+  "generatedAt": "2026-08-21T06:25:08Z",
+  "packages": {
+    "@harman/dsh-bridge": [
+      {
+        "version": "0.1.0-dev.6",
+        "description": "Authenticated Harman control plane bridge for DSH Web Settings",
+        "dsh": ">=0.1.0-rc.7 <0.2.0",
+        "platform": "linux",
+        "arch": "x64",
+        "dependencies": {},
+        "artifact": {
+          "url": "./harman-dsh-bridge-0.1.0-dev.6.tgz",
+          "sha256": "ebc2ac8727853a258066aa944e97dc3633851956cf979ff3af886b6dd2ae6a9a"
+        }
+      }
+    ]
+  }
+}
