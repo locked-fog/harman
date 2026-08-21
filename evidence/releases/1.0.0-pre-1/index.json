@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "sequence": 1,
-  "generatedAt": "2026-08-21T09:13:42.877Z",
+  "generatedAt": "2026-08-21T10:20:26.100Z",
   "packages": {
     "@harman/dsh-bridge": [
       {
@@ -13,7 +13,7 @@
         "dependencies": {},
         "artifact": {
           "url": "./harman-dsh-bridge-1.0.0-pre-1.tgz",
-          "sha256": "5416db44433ff42fd0f6a6e762263c1981ac2c146f524be98d6f54d9b13b0bd8"
+          "sha256": "15f27d13b81b1618777a6fb036058fa455187ae68ff2038785c6bea335c42c4f"
         }
       }
     ]

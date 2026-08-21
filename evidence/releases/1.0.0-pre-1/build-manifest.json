@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "package": "@harman/dsh-bridge",
   "packageVersion": "1.0.0-pre-1",
-  "sourceCommit": "de4aab71094dc8389c08c012bfb0f8c256244829",
+  "sourceCommit": "945e450451dced2b893cca791a650b89475ac304",
   "registry": "https://registry.npmjs.org",
   "requested": {
     "dsh": "0.1.0-rc.7",
@@ -67,18 +67,23 @@
   },
   "artifact": {
     "file": "harman-dsh-bridge-1.0.0-pre-1.tgz",
-    "sha256": "5416db44433ff42fd0f6a6e762263c1981ac2c146f524be98d6f54d9b13b0bd8",
-    "size": 76426,
+    "sha256": "15f27d13b81b1618777a6fb036058fa455187ae68ff2038785c6bea335c42c4f",
+    "size": 77103,
     "npmPack": {
       "id": "@harman/dsh-bridge@1.0.0-pre-1",
       "name": "@harman/dsh-bridge",
       "version": "1.0.0-pre-1",
-      "size": 76426,
-      "unpackedSize": 380712,
-      "shasum": "880cfa6a829b5f31b6082bd65284957a310b21df",
-      "integrity": "sha512-4dtd1hztiZIo0AMknb87Z/uOrUt2nlKHYjT5/FfaxtrdJknlxW5oMnt6bpJ4BHUff4B394+xUbF6A85mYq9ZMA==",
+      "size": 77103,
+      "unpackedSize": 381799,
+      "shasum": "9ff8c8876ada93ff6a69f3c02d5eae853c882f69",
+      "integrity": "sha512-vs/MKpGYkgNcAcD3Nqqk3arZ2p08WsT7eLZxHsJm9/8a3v6lf7L5XRRpCB6i8U6hl587iBu64YauEtqO+qoJsw==",
       "filename": "harman-dsh-bridge-1.0.0-pre-1.tgz",
       "files": [
+        {
+          "path": "LICENSE",
+          "size": 1067,
+          "mode": 420
+        },
         {
           "path": "cordis.patch.yml",
           "size": 60,
@@ -136,11 +141,11 @@
         },
         {
           "path": "package.json",
-          "size": 1938,
+          "size": 1958,
           "mode": 420
         }
       ],
-      "entryCount": 12,
+      "entryCount": 13,
       "bundled": []
     }
   }

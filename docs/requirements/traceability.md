@@ -2,9 +2,9 @@
 
 M7 closeout review: 2026-08-21. The current browser/build/core evidence is
 `evidence/M7/20260821T064247Z-web-final/manifest.json`. The 1.0.0-pre-1 release
-preparation has explicit authority to create and push `locked-fog/harman`, but
-the P8 row remains incomplete until the public repository, Hosted CI, and raw
-index are verified end to end.
+preparation has explicit authority to create and push `locked-fog/harman`. The
+public Hosted workflow is intentionally unprivileged; bubblewrap-dependent
+security evidence is required from the authorized `codex-test` workstation.
 
 Status values are `planned`, `implemented`, `verified`, and `blocked`. A row is
 `verified` only when its implementation, automated test, remote evidence, and
@@ -51,7 +51,7 @@ any row is not `verified`.
 | P7-WEB-TRANSACTION | All Web writes use authenticated Core transactions with impact and audit | ADR-0002 | bridge Remote and daemon Application API | browser preview/commit plus audit assertion | M7 manifest | Web guide | verified |
 | P7-WEB-FAIL-CLOSED | Disconnect, stale state, failure, and rollback are explicit and writes fail closed | ADR-0002 | bridge status/transaction handling, daemon revision checks | stale revision and daemon disconnect browser runs | M7 manifest | Web guide | verified for tested stale/disconnect paths |
 | P7-WEB-QUALITY | Real UI passes keyboard, screen-reader, responsive, loading, progress, refresh, and consistency checks | Web design spec | `packages/dsh-bridge/src/client/index.tsx`, CSS | semantic accessibility, focus, refresh, and 390px overflow probes | M7 manifest | Web guide | implemented; semantic accessibility/focus/responsive checks pass, while standalone screen-reader AT remains untested |
-| P8-REPO-GITHUB | A trusted personal GitHub repository carries recipes, index, metadata, CI, and release artifacts | ADR-0010 / workflow | recipe directory, repository CI and publisher | local CI contract | M6 manifest | repository guide | implementation ready; 1.0.0-pre-1 publication authorized, public/Hosted CI/raw-index evidence pending |
+| P8-REPO-GITHUB | A trusted personal GitHub repository carries recipes, index, metadata, CI, and release artifacts | ADR-0010 / workflow | recipe directory, repository CI and publisher | portable Hosted CI plus codex-test sandbox gate | M6, 1.0.0-pre-1 and codex-test manifests | repository guide | public repo/raw index and codex-test sandbox gate verified; Hosted portable job remains the final remote check |
 | P8-REPO-MULTI | Multiple repositories support priority and deterministic conflict handling | ADR-0010 | Package manager and CLI | three-source conflict E2E | M6 manifest | repository guide | verified |
 | P8-REPO-TRUST | Artifact/index signing, verification, rotation, revocation, replay, downgrade, and explicit distrust are enforced | ADR-0010 | `trust.js`, Repository/Package managers | Ed25519 security E2E | M6 manifest | repository guide | verified |
 | P9-SECURITY | Threat model covers hostile inputs, traversal, symlink escape, build scripts, confusion, injection, secrets, and deletion | threat model / security ADRs | trust, Store, sandbox, Resource, Profile modules | accumulated hostile-input suites plus final 65-test regression | M1-M7 manifests | security and subsystem guides | verified for the covered threat matrix; system-package and publication gates remain external |
