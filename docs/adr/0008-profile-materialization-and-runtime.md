@@ -23,5 +23,9 @@ otherwise sandboxed from data visible in the process.
 Prompt and instruction Resources are composed with provenance into the private
 DSH_HOME; Skill locations are linked read-only through the root view. Literal
 secret-looking configuration is rejected in favor of `secretRef`. Generated
-DSH state such as settings, sessions, storages, caches, and `cordis.yml` remains
-under the private DSH_HOME and outside the authoritative Harman lock.
+DSH state such as settings, sessions, storages, and caches remains under the
+private DSH_HOME and outside the authoritative Harman lock. In the stock DSH
+profile boot, `profiles/harman/cordis.yml` is a derived root rewritten by DSH;
+Harman owns the adjacent `cordis.patch.yml` input and deliberately does not
+restore or lock the generated root during rematerialization. DSH startup is
+responsible for recreating that root after Harman rebuilds the profile view.

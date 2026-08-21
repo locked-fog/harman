@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
 import { spawn } from 'node:child_process'
-import { mkdtemp, readdir, writeFile } from 'node:fs/promises'
+import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -148,6 +148,9 @@ test('-Syu previews without mutation and upgrades explicit package after sync', 
   assert.equal(JSON.parse(query.stdout).version, '1.1.0')
   const profile = await run(home, ['profile', 'show', 'upgrade-target'])
   assert.deepEqual(JSON.parse(profile.stdout).packages, ['demo@1.1.0'])
+  const profileHome = JSON.parse(profile.stdout).dshHome
+  assert.match(await readFile(join(profileHome, 'profiles', 'harman', 'node_modules', 'demo', 'lib', 'index.js'), 'utf8'), /1\.1\.0/)
+  assert.match(await readFile(join(profileHome, 'profiles', 'harman', 'package.json'), 'utf8'), /"demo": "1\.1\.0"/)
   assert.equal((await run(home, ['-Qi', 'demo@1.0.0'])).code, 5)
 })
 

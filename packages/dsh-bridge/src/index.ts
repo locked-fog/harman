@@ -5,6 +5,7 @@ import { join, resolve } from 'node:path'
 import type { Context } from '@deepseek-ai/cordis'
 import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
 import type { JsonValue } from './types.js'
+import type {} from './compat/typert-protocol.js'
 
 interface Envelope { ok?: boolean; result?: JsonValue; error?: { code?: string; message?: string } }
 

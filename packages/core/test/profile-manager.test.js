@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { chmod, mkdir, mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises'
+import { access, chmod, mkdir, mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
@@ -89,6 +89,23 @@ test('materialization replaces only Harman-owned views and preserves private DSH
   assert.equal(await readFile(join(created.profile.dshHome, 'settings.yaml'), 'utf8'), 'theme: dark\n')
   assert.equal(await readFile(join(created.profile.dshHome, 'sessions', 'one.jsonl'), 'utf8'), '{"event":"kept"}\n')
   assert.deepEqual(JSON.parse(await readFile(join(created.profile.dshHome, '.harman-managed.json'))).paths, ['.harman-managed.json', 'harman.lock.json', 'profiles/harman'])
+})
+
+test('DSH-derived cordis root is rebuilt while private cache survives Harman rematerialization', async () => {
+  const { manager } = await fixture()
+  const created = await manager.create({ name: 'derived-state' })
+  const dshHome = created.profile.dshHome
+  const derivedCordis = join(dshHome, 'profiles', 'harman', 'cordis.yml')
+  const cacheEntry = join(dshHome, 'cache', 'dsh', 'latest.json')
+  await mkdir(join(dshHome, 'cache', 'dsh'), { recursive: true })
+  await writeFile(derivedCordis, '# written by the DSH profile boot\n')
+  await writeFile(cacheEntry, '{"owner":"dsh"}\n')
+
+  await manager.materialize('derived-state')
+
+  await assert.rejects(access(derivedCordis))
+  assert.equal(await readFile(cacheEntry, 'utf8'), '{"owner":"dsh"}\n')
+  assert.equal(await readFile(join(dshHome, 'profiles', 'harman', 'cordis.patch.yml'), 'utf8'), '[]\n')
 })
 
 test('materialization recovers a run marker whose owner process no longer exists', async () => {

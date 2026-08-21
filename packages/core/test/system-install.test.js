@@ -18,6 +18,8 @@ function run(args) {
 test('user-prefix install, atomic upgrade, and uninstall preserve Harman state', async () => {
   const root = await mkdtemp(join(tmpdir(), 'harman-install-')); const prefix = join(root, 'prefix'); const state = join(root, 'state')
   await mkdir(state); await writeFile(join(state, 'keep'), 'state survives\n')
+  await mkdir(join(prefix, 'share', 'non-harman'), { recursive: true })
+  await writeFile(join(prefix, 'share', 'non-harman', 'keep.txt'), 'unrelated prefix state\n')
   const first = await run(['--prefix', prefix]); assert.equal(first.code, 0, first.stderr)
   const init = await new Promise((resolve, reject) => {
     const child = spawn(join(prefix, 'bin', 'harman'), ['--home', state, '--json', 'state', 'init'], { stdio: ['ignore', 'pipe', 'pipe'] })
@@ -29,4 +31,5 @@ test('user-prefix install, atomic upgrade, and uninstall preserve Harman state',
   const removed = await run(['--prefix', prefix, '--uninstall']); assert.equal(removed.code, 0, removed.stderr)
   await assert.rejects(access(join(prefix, 'bin', 'harman')))
   assert.equal(await readFile(join(state, 'keep'), 'utf8'), 'state survives\n')
+  assert.equal(await readFile(join(prefix, 'share', 'non-harman', 'keep.txt'), 'utf8'), 'unrelated prefix state\n')
 })

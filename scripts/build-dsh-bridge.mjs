@@ -20,7 +20,9 @@ function option(name, fallback) {
 
 const releaseVersion = option('--package-version', process.env.HARMAN_BRIDGE_VERSION ?? sourceManifest.version)
 const requestedDsh = option('--dsh-version', process.env.DSH_VERSION ?? 'latest')
-const requestedGenerator = option('--generator-version', process.env.DSH_GENERATOR_VERSION ?? 'latest')
+// The Typert generator is part of the DSH release family, not an npm tag.
+// `latest` on the individual package can legitimately lag the DSH CLI tag.
+const requestedGenerator = option('--generator-version', process.env.DSH_GENERATOR_VERSION ?? 'match-dsh')
 const outputDirectory = resolve(option('--output', join(repoRoot, 'evidence', 'releases', releaseVersion)))
 const npmCache = resolve(process.env.HARMAN_NPM_CACHE ?? join(tmpdir(), 'harman-npm-cache'))
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm'
@@ -87,7 +89,10 @@ function onePackRecord(value) {
 }
 
 async function npmView(name, requested) {
-  const value = await npmJson(['view', `${name}@${requested}`, 'version', 'dist.tarball', 'dist.integrity', '--json'])
+  const value = await npmJson([
+    'view', `${name}@${requested}`, 'version', 'dist.tarball', 'dist.integrity',
+    'license', 'repository', 'dependencies', 'peerDependencies', 'devDependencies', '--json',
+  ])
   const record = oneRecord(value)
   if (record === null || typeof record !== 'object' || typeof record.version !== 'string') {
     throw new Error(`npm metadata for ${name}@${requested} did not contain a version`)
@@ -122,6 +127,7 @@ async function extractPackage(name, version, archiveDirectory) {
 function exactPeerVersions(resolved) {
   return {
     '@deepseek-ai/cordis': `=${resolved['@deepseek-ai/cordis'].version}`,
+    '@deepseek-ai/dsh-invariants': `=${resolved['@deepseek-ai/dsh-invariants'].version}`,
     '@deepseek-ai/dsh-api-remotes': `=${resolved['@deepseek-ai/dsh-api-remotes'].version}`,
     '@deepseek-ai/dsh-client-locale': `=${resolved['@deepseek-ai/dsh-client-locale'].version}`,
     '@deepseek-ai/dsh-client-runtime': `=${resolved['@deepseek-ai/dsh-client-runtime'].version}`,
@@ -170,6 +176,7 @@ function compilerOptions(overrides = {}) {
     paths: {
       '@harman/dsh-bridge': ['packages/dsh-bridge/src/index.ts'],
       '@harman/dsh-bridge/*': ['packages/dsh-bridge/lib/*'],
+      '@deepseek-ai/dsh-typert-protocol': ['packages/dsh-bridge/src/compat/typert-protocol.d.ts'],
     },
     ...overrides,
   }
@@ -180,23 +187,6 @@ async function prepareWorkspace(resolved) {
   await cp(join(sourceBridge, 'src'), join(tempBridge, 'src'), { recursive: true })
   await cp(join(sourceBridge, 'cordis.patch.yml'), join(tempBridge, 'cordis.patch.yml'))
   await cp(join(repoRoot, 'LICENSE'), join(tempBridge, 'LICENSE'))
-  const sourceIndex = join(tempBridge, 'src', 'index.ts')
-  const sourceText = await readFile(sourceIndex, 'utf8')
-  await writeFile(sourceIndex, sourceText
-    .replace(
-      "import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'",
-      "import { GatewayService, Remote } from '@deepseek-ai/dsh-type-meta'",
-    )
-    .replace('extends TypertRemoteService', 'extends GatewayService'))
-  await writeFile(join(tempBridge, 'src', 'dsh-type-meta.d.ts'), [
-    "declare module '@deepseek-ai/dsh-type-meta' {",
-    "  import { TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'",
-    '  export function Remote(name: string): (method: any, context: any) => void',
-    '  export function RemoteScope(key: string, name?: string): (method: any, context: any) => void',
-    '  export abstract class GatewayService extends TypertRemoteService {}',
-    '}',
-    '',
-  ].join('\n'))
   await writeFile(join(tempBridge, 'package.json'), `${JSON.stringify(packageManifest(resolved), null, 2)}\n`)
   await writeFile(join(tempBridge, 'tsconfig.host.json'), `${JSON.stringify({
     compilerOptions: compilerOptions({
@@ -206,7 +196,7 @@ async function prepareWorkspace(resolved) {
       emitDeclarationOnly: true,
       types: ['node'],
     }),
-    files: ['src/index.ts', 'src/dsh-type-meta.d.ts'],
+    files: ['src/index.ts', 'src/types.ts', 'src/compat/typert-protocol.d.ts'],
   }, null, 2)}\n`)
   await writeFile(join(tempBridge, 'tsconfig.client.json'), `${JSON.stringify({
     compilerOptions: compilerOptions({
@@ -220,10 +210,26 @@ async function prepareWorkspace(resolved) {
     files: ['src/client/index.tsx', 'src/css-modules.d.ts'],
   }, null, 2)}\n`)
   await writeFile(join(buildDirectory, 'tsconfig.host.json'), `${JSON.stringify({
+    compilerOptions: compilerOptions({
+      baseUrl: '.',
+      paths: {
+        '@harman/dsh-bridge': ['packages/dsh-bridge/src/index.ts'],
+        '@harman/dsh-bridge/*': ['packages/dsh-bridge/lib/*'],
+        '@deepseek-ai/dsh-typert-protocol': ['packages/dsh-bridge/src/compat/typert-protocol.d.ts'],
+      },
+    }),
     files: [],
     references: [{ path: 'packages/dsh-bridge/tsconfig.host.json' }],
   }, null, 2)}\n`)
   await writeFile(join(buildDirectory, 'tsconfig.client.json'), `${JSON.stringify({
+    compilerOptions: compilerOptions({
+      baseUrl: '.',
+      paths: {
+        '@harman/dsh-bridge': ['packages/dsh-bridge/src/index.ts'],
+        '@harman/dsh-bridge/*': ['packages/dsh-bridge/lib/*'],
+        '@deepseek-ai/dsh-typert-protocol': ['packages/dsh-bridge/src/compat/typert-protocol.d.ts'],
+      },
+    }),
     files: [],
     references: [{ path: 'packages/dsh-bridge/tsconfig.client.json' }],
   }, null, 2)}\n`)
@@ -293,13 +299,13 @@ function moduleLoaderBundle(code) {
   ].join('\n')
 }
 
-function normalizeRemoteDeclaration(remoteDeclaration) {
-  return remoteDeclaration
-    .replaceAll('@deepseek-ai/dsh-type-meta', '@deepseek-ai/dsh-typert-protocol')
-    .replaceAll('TypeRTRemoteContribution', 'TypertRemoteContribution')
-    .replaceAll('TypeRTRemoteNamespace$', 'TypertRemoteNamespace$')
-    .replaceAll('TypeRTRemoteMap', 'TypertRemoteMap')
-    .replaceAll('TypeRTRemoteNamespaceMap', 'TypertRemoteNamespaceMap')
+function assertProtocolNativeArtifacts(artifact) {
+  const generated = [artifact.dts, artifact.remote?.dts ?? '']
+  if (generated.some(value => value.includes('@deepseek-ai/dsh-type-meta') || value.includes('TypeRTRemote'))) {
+    throw new Error(
+      'DSH Typert generator emitted the retired dsh-type-meta contract; use the generator matching the resolved DSH release family',
+    )
+  }
 }
 
 async function importFromBuild(packageName, relativeMain) {
@@ -308,7 +314,8 @@ async function importFromBuild(packageName, relativeMain) {
 }
 
 const dshMetadata = await npmView('@deepseek-ai/dsh', requestedDsh)
-const generatorMetadata = await npmView('@deepseek-ai/dsh-typert-generator', requestedGenerator)
+const generatorRequest = requestedGenerator === 'match-dsh' ? dshMetadata.version : requestedGenerator
+const generatorMetadata = await npmView('@deepseek-ai/dsh-typert-generator', generatorRequest)
 const supportNames = [
   '@deepseek-ai/cordis',
   '@deepseek-ai/dsh-invariants',
@@ -320,8 +327,14 @@ const supportNames = [
   '@deepseek-ai/dsh-session',
   '@deepseek-ai/dsh-typert-protocol',
 ]
+const supportRequests = Object.fromEntries(supportNames.map(name => [
+  name,
+  name === '@deepseek-ai/cordis'
+    ? (dshMetadata.dependencies?.[name] ?? dshMetadata.peerDependencies?.[name] ?? '^4.0.1')
+    : dshMetadata.dependencies?.[name] ?? dshMetadata.peerDependencies?.[name] ?? dshMetadata.version,
+]))
 const supportMetadata = {}
-for (const name of supportNames) supportMetadata[name] = await npmView(name, 'latest')
+for (const name of supportNames) supportMetadata[name] = await npmView(name, supportRequests[name])
 
 const fixedBuildDependencies = {
   typescript: '6.0.3',
@@ -369,27 +382,26 @@ await prepareWorkspace(resolved)
 const { WorkspaceTypertGenerator } = await importFromBuild('@deepseek-ai/dsh-typert-generator', 'lib/types/workspace.js')
 const generator = new WorkspaceTypertGenerator(buildDirectory)
 const artifacts = generator.generate(['@harman/dsh-bridge'], ['host'])
-if (artifacts.length !== 1 || artifacts[0].remote === undefined) throw new Error('expected one Host artifact with a Client Remote contribution')
+if (artifacts.length !== 1 || artifacts[0].remote === undefined) {
+  throw new Error(
+    `DSH ${dshMetadata.version} with Typert generator ${generatorMetadata.version} did not emit one Host artifact with a Client Remote contribution; do not mix npm latest tags, use a matching DSH release family`,
+  )
+}
 const artifact = artifacts[0]
+assertProtocolNativeArtifacts(artifact)
 const generatedDirectory = join(tempBridge, 'lib')
 await mkdir(generatedDirectory, { recursive: true })
 await Promise.all([
   writeFile(join(generatedDirectory, 'typert.host.js'), artifact.js),
   writeFile(join(generatedDirectory, 'typert.host.d.ts'), artifact.dts),
   writeFile(join(generatedDirectory, 'typert.remote-client.js'), artifact.remote.js),
-  writeFile(join(generatedDirectory, 'typert.remote-client.d.ts'), normalizeRemoteDeclaration(artifact.remote.dts)),
+  writeFile(join(generatedDirectory, 'typert.remote-client.d.ts'), artifact.remote.dts),
   writeFile(join(generatedDirectory, 'typert.remote-client.d.ts.map'), `${JSON.stringify({ version: 3, file: 'typert.remote-client.d.ts', sources: [], names: [], mappings: '' })}\n`),
 ])
 
 const typescriptPath = join(nodeModules, 'typescript', 'bin', 'tsc')
 await run(process.execPath, [typescriptPath, '-p', join(tempBridge, 'tsconfig.host.json')], { cwd: buildDirectory })
 await run(process.execPath, [typescriptPath, '-p', join(tempBridge, 'tsconfig.client.json')], { cwd: buildDirectory })
-const hostTypesPath = join(tempBridge, 'lib', 'types', 'index.d.ts')
-const hostTypes = await readFile(hostTypesPath, 'utf8')
-await writeFile(hostTypesPath, hostTypes
-  .replaceAll("import { GatewayService } from '@deepseek-ai/dsh-type-meta'", "import { TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'")
-  .replaceAll('extends GatewayService', 'extends TypertRemoteService'))
-
 const { build } = await importFromBuild('esbuild', 'lib/main.js')
 await build({
   entryPoints: [join(tempBridge, 'src', 'index.ts')],
@@ -399,20 +411,10 @@ await build({
   platform: 'node',
   target: 'es2022',
   packages: 'external',
-  alias: { '@deepseek-ai/dsh-type-meta': '@deepseek-ai/dsh-typert-protocol' },
   sourcemap: false,
   legalComments: 'none',
   minify: true,
 })
-const hostBundlePath = join(generatedDirectory, 'index.js')
-const hostBundle = await readFile(hostBundlePath, 'utf8')
-const patchedHostBundle = hostBundle.replace(
-  /import\{GatewayService( as [A-Za-z_$][\w$]*)?,Remote( as [A-Za-z_$][\w$]*)?\}from"@deepseek-ai\/dsh-typert-protocol"/,
-  (_, gatewayAlias = '', remoteAlias = '') =>
-    `import{TypertRemoteService${gatewayAlias},Remote${remoteAlias}}from"@deepseek-ai/dsh-typert-protocol"`,
-)
-if (patchedHostBundle === hostBundle) throw new Error('Host bundle protocol import normalization did not match')
-await writeFile(hostBundlePath, patchedHostBundle)
 const clientResult = await build({
   entryPoints: [join(tempBridge, 'src', 'client', 'index.tsx')],
   bundle: true,
@@ -444,6 +446,10 @@ const buildManifest = {
   registry: 'https://registry.npmjs.org',
   requested: { dsh: requestedDsh, typertGenerator: requestedGenerator },
   resolved: Object.fromEntries(Object.entries(resolved).map(([name, value]) => [name, value.version])),
+  requestedRanges: {
+    typertGenerator: generatorRequest,
+    support: supportRequests,
+  },
   dshSource: {
     package: '@deepseek-ai/dsh',
     version: dshMetadata.version,
@@ -455,10 +461,27 @@ const buildManifest = {
   },
   build: {
     typertGenerator: generatorMetadata.version,
+    typertProtocol: supportMetadata['@deepseek-ai/dsh-typert-protocol'].version,
+    session: supportMetadata['@deepseek-ai/dsh-session'].version,
     esbuild: fixedBuildDependencies.esbuild,
     typescript: resolved.typescript?.version ?? 'unknown',
     officialDependencies: supportNames,
-    compatibilityFacade: '@deepseek-ai/dsh-type-meta is generated only in the temporary analyzer workspace; runtime and published declarations target @deepseek-ai/dsh-typert-protocol',
+    compatibility: {
+      analyzerContract: 'protocol-native',
+      adapter: {
+        kind: 'checked-in-static-analysis-contract',
+        source: 'packages/dsh-bridge/src/compat/typert-protocol.d.ts',
+        runtime: '@deepseek-ai/dsh-typert-protocol',
+        purpose: 'make published protocol symbols visible to the external npm workspace analyzer',
+      },
+      dshTypeMeta: { status: 'not-required', reason: 'generator and protocol are resolved from the DSH release family' },
+      sessionJsonValue: {
+        source: '@deepseek-ai/dsh-session',
+        adapter: 'packages/dsh-bridge/src/types.ts',
+        assertion: 'bidirectional-assignability',
+      },
+      rejectedLegacyContract: '@deepseek-ai/dsh-type-meta',
+    },
   },
   artifact: {
     file: basename(artifactPath),
