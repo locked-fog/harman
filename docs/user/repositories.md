@@ -20,7 +20,11 @@ secret; Harman state contains public keys only.
 
 Repository CI uses `harman-repo build RECIPE OUTPUT_DIR` to run the recipe twice
 in isolated `bubblewrap`, require byte identity, and emit the package artifact,
-provenance, and SPDX 2.3 SBOM. Sign artifacts and the final index separately:
+provenance, and SPDX 2.3 SBOM. GitHub Hosted CI does not install packages with
+`sudo` or run privileged steps: it probes ordinary-user bubblewrap capability
+and defers the isolation suite when the runner lacks that capability. The full
+isolation contract is required to pass separately on the authorized
+`codex-test` workstation. Sign artifacts and the final index separately:
 
 ```text
 harman-repo sign-artifact NAME VERSION SHA256 private.pem artifact.sig.json

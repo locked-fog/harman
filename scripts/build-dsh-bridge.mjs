@@ -143,6 +143,7 @@ function packageManifest(resolved) {
   return {
     name: sourceManifest.name,
     version: releaseVersion,
+    license: sourceManifest.license,
     description: sourceManifest.description,
     type: sourceManifest.type,
     main: sourceManifest.main,
@@ -178,6 +179,7 @@ async function prepareWorkspace(resolved) {
   await mkdir(join(buildDirectory, 'packages'), { recursive: true })
   await cp(join(sourceBridge, 'src'), join(tempBridge, 'src'), { recursive: true })
   await cp(join(sourceBridge, 'cordis.patch.yml'), join(tempBridge, 'cordis.patch.yml'))
+  await cp(join(repoRoot, 'LICENSE'), join(tempBridge, 'LICENSE'))
   const sourceIndex = join(tempBridge, 'src', 'index.ts')
   const sourceText = await readFile(sourceIndex, 'utf8')
   await writeFile(sourceIndex, sourceText

@@ -4,6 +4,11 @@
 repository no longer assumes that an upstream DSH monorepo checkout exists next
 to this repository.
 
+The official `@deepseek-ai/dsh@0.1.0-rc.7` npm manifest declares MIT. Harman
+uses the same MIT license in the root repository and the published Bridge
+package; the release build copies the root `LICENSE` into the Bridge tgz and
+sets the package `license` field.
+
 ## Reproducible release build
 
 Use an exact DSH version for a release candidate:

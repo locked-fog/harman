@@ -7,6 +7,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import test from 'node:test'
 import { CiBuilder, ConflictError } from '../src/index.js'
+import { sandboxCapability } from '../../../scripts/sandbox-capability.mjs'
 
 function octal(value, length) { return value.toString(8).padStart(length - 1, '0') + '\0' }
 function tar(files) {
@@ -29,7 +30,7 @@ async function recipe(root, randomize = false) {
   return { schemaVersion: 1, name: 'ci-demo', version: '1.0.0', sourceDateEpoch: 0, source: { type: 'npm-tgz', url: pathToFileURL(path).href, sha256: createHash('sha256').update(source).digest('hex') }, build: { commands: [['node', 'build.mjs']] }, outputArtifact: 'result.tgz' }
 }
 
-test('CI builder requires two byte-identical sandbox builds and emits provenance plus SPDX SBOM', async () => {
+test('CI builder requires two byte-identical sandbox builds and emits provenance plus SPDX SBOM', { skip: sandboxCapability.isolated.skip }, async () => {
   const root = await mkdtemp(join(tmpdir(), 'harman-ci-')); const output = join(root, 'out')
   const result = await new CiBuilder(join(root, 'build')).buildReproducibly(await recipe(root), output)
   assert.equal((await readFile(result.artifactPath)).length > 0, true)
@@ -37,7 +38,7 @@ test('CI builder requires two byte-identical sandbox builds and emits provenance
   assert.equal(JSON.parse(await readFile(join(output, 'sbom.spdx.json'))).spdxVersion, 'SPDX-2.3')
 })
 
-test('CI builder refuses a valid but byte-nondeterministic package artifact', async () => {
+test('CI builder refuses a valid but byte-nondeterministic package artifact', { skip: sandboxCapability.isolated.skip }, async () => {
   const root = await mkdtemp(join(tmpdir(), 'harman-ci-random-'))
   await assert.rejects(new CiBuilder(join(root, 'build')).buildReproducibly(await recipe(root, true), join(root, 'out')), error => error instanceof ConflictError)
 })

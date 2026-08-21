@@ -2,6 +2,7 @@
   "name": "harman",
   "version": "1.0.0-pre-1",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22.19.0"

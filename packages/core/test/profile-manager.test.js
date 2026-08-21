@@ -4,6 +4,7 @@ import { chmod, mkdir, mkdtemp, readFile, readdir, writeFile } from 'node:fs/pro
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
+import { sandboxCapability } from '../../../scripts/sandbox-capability.mjs'
 import {
   ProfileManager, ResourceManager, RuntimeManager, StateStore,
 } from '../src/index.js'
@@ -104,7 +105,7 @@ test('materialization recovers a run marker whose owner process no longer exists
   assert.equal(recovered.runOwnerPid, null)
 })
 
-test('two Profiles run concurrently with private state and read-only access outside their own DSH_HOME', async () => {
+test('two Profiles run concurrently with private state and read-only access outside their own DSH_HOME', { skip: sandboxCapability.profile.skip }, async () => {
   const { manager, root } = await fixture()
   const a = await manager.create({ name: 'a' })
   const b = await manager.create({ name: 'b', runtime: { version: '0.1.0-rc.7' } })

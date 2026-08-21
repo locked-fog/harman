@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import test from 'node:test'
+import { sandboxCapability } from '../../../scripts/sandbox-capability.mjs'
 import {
   PackageStore, ProfileBundleManager, ProfileManager, ResourceManager,
   RuntimeManager, StateStore, addPackage,
@@ -53,7 +54,7 @@ async function sourceFixture() {
   return { root, store, bundle, external }
 }
 
-test('strict offline restore reconstructs Package, managed Resource, lock identity, and exact Runtime', async () => {
+test('strict offline restore reconstructs Package, managed Resource, lock identity, and exact Runtime', { skip: sandboxCapability.profile.skip }, async () => {
   const { root, bundle, external } = await sourceFixture()
   const target = new StateStore(join(root, 'target-home')); await target.initialize(); const runtimes = await runtime(target)
   const profiles = new ProfileManager(target, { runtimes }); const result = await new ProfileBundleManager(target, { profiles }).restore(bundle, { name: 'restored', mode: 'strict' })
@@ -66,14 +67,14 @@ test('strict offline restore reconstructs Package, managed Resource, lock identi
   assert.ok(!JSON.stringify(JSON.parse(await readFile(join(bundle, 'profile-export.json')))).includes('literal-secret'))
 })
 
-test('follow-latest preserves channel policy and records the restore choice', async () => {
+test('follow-latest preserves channel policy and records the restore choice', { skip: sandboxCapability.profile.skip }, async () => {
   const { root, bundle } = await sourceFixture()
   const target = new StateStore(join(root, 'follow-home')); await target.initialize(); const runtimes = await runtime(target)
   const profiles = new ProfileManager(target, { runtimes }); const result = await new ProfileBundleManager(target, { profiles }).restore(bundle, { name: 'follow', mode: 'follow-latest' })
   assert.equal(result.runtimeSelection.channel, 'latest'); assert.equal((await profiles.show('follow')).runtime.channel, 'latest'); assert.equal(result.equivalent, true)
 })
 
-test('missing external Resource and tampered manifest fail without a visible Profile', async () => {
+test('missing external Resource and tampered manifest fail without a visible Profile', { skip: sandboxCapability.profile.skip }, async () => {
   const { root, bundle, external } = await sourceFixture(); await rename(external, `${external}.offline`)
   const target = new StateStore(join(root, 'failure-home')); await target.initialize(); const runtimes = await runtime(target)
   const profiles = new ProfileManager(target, { runtimes }); const bundles = new ProfileBundleManager(target, { profiles })

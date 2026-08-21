@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import test from 'node:test'
+import { sandboxCapability } from '../../../scripts/sandbox-capability.mjs'
 import {
   ConflictError, PackageStore, RecipeBuilder, ValidationError, compareVersions, inspectTarGz,
   readRepositoryCache, searchRepositoryIndexes, solvePackages, syncRepository,
@@ -222,7 +223,7 @@ test('invalid repository index fails before cache publication', () => {
   assert.throws(() => validateRepositoryIndex(bad), ValidationError)
 })
 
-test('recipe build is hash-pinned, environment-clean, filesystem-confined, and network-isolated', async () => {
+test('recipe build is hash-pinned, environment-clean, filesystem-confined, and network-isolated', { skip: sandboxCapability.isolated.skip }, async () => {
   const root = await mkdtemp(join(tmpdir(), 'harman-recipe-'))
   const product = tar([
     { name: 'package/package.json', body: JSON.stringify({ name: 'built-demo', version: '1.0.0' }) },
@@ -265,7 +266,7 @@ await writeFile('result.tgz', Buffer.from('${product.toString('base64')}', 'base
   }
 })
 
-test('recipe output cannot escape its build root', async () => {
+test('recipe output cannot escape its build root', { skip: sandboxCapability.isolated.skip }, async () => {
   const root = await mkdtemp(join(tmpdir(), 'harman-recipe-path-'))
   const source = tar([{ name: 'package/package.json', body: JSON.stringify({ name: 'source', version: '1.0.0' }) }])
   const sourcePath = join(root, 'source.tgz')

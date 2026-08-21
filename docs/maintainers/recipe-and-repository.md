@@ -18,12 +18,16 @@ harman-repo sign-artifact NAME VERSION SHA256 private.pem artifact.sig.json
 harman-repo sign-index index.unsigned.json private.pem index.signed.json
 ```
 
-CI builds each recipe twice and rejects byte differences. A successful job
-emits the package tarball, provenance containing source/recipe/artifact hashes,
-and an SPDX 2.3 SBOM. Reviewers must also verify license, DSH compatibility,
-runtime/peer/optional dependency collection, file inclusion, lifecycle-script
-necessity, and declared Package-provided Resources. Private keys remain outside
-the repository and CI artifact.
+CI builds each recipe twice and rejects byte differences when the ordinary-user
+runner exposes the required bubblewrap namespaces. The public Hosted workflow
+does not use `sudo` or install a privileged isolation runtime; it records a
+visible deferral when that capability is absent. The full isolation contract is
+run with `HARMAN_REQUIRE_SANDBOX=1` on the authorized `codex-test` workstation.
+A successful build emits the package tarball, provenance containing
+source/recipe/artifact hashes, and an SPDX 2.3 SBOM. Reviewers must also verify
+license, DSH compatibility, runtime/peer/optional dependency collection, file
+inclusion, lifecycle-script necessity, and declared Package-provided Resources.
+Private keys remain outside the repository and CI artifact.
 
 The checked-in `icelily-dsh-gitbash-preset` recipe demonstrates a real public
 npm source, a disabled-network deterministic repack, and a standard Store
