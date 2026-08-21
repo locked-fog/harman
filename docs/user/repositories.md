@@ -1,7 +1,7 @@
 # Repository maintenance and trust
 
 ```text
-harman repo add personal https://example.invalid/harman/index.json 20
+harman repo add personal https://raw.githubusercontent.com/locked-fog/harman/main/evidence/releases/1.0.0-pre-1/index.json 20
 harman repo key-add personal ./repository-public.pem
 harman repo policy personal signed
 harman repo threshold personal 1
@@ -29,6 +29,6 @@ harman-repo sign-index index.unsigned.json private.pem index.json
 
 Increment `sequence` for every content change. Reusing a sequence with different
 content or lowering it is rejected. Artifact URLs should be immutable release
-assets; their SHA-256 and Ed25519 signature must match the signed index. GitHub
-publication, secrets, tags, and releases remain an explicit release operation,
-not an effect of local testing.
+assets; their SHA-256 and Ed25519 signature must match the signed index. The
+`1.0.0-pre-1` index is public and hash-only; it is not a signed trust root until
+a repository key is deliberately added.

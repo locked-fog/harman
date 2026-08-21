@@ -1,6 +1,6 @@
 {
   "name": "harman",
-  "version": "0.1.0-dev",
+  "version": "1.0.0-pre-1",
   "private": true,
   "type": "module",
   "engines": {
@@ -12,6 +12,7 @@
     "harman-daemon": "apps/daemon/harman-daemon.js"
   },
   "scripts": {
+    "build:bridge": "node scripts/build-dsh-bridge.mjs",
     "test": "node --test packages/core/test/*.test.js",
     "test:core": "node --test packages/core/test/*.test.js",
     "check": "node --check apps/cli/harman.js && node --check apps/cli/harman-repo.js && node --check apps/daemon/harman-daemon.js && node --test packages/core/test/*.test.js"

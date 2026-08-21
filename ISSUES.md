@@ -23,8 +23,9 @@
 
 仍未关闭的边界：
 
-- 个人 GitHub 可信仓库没有 remote，也没有得到 push/tag/release 授权；本地
-  recipe/index/CI/release contract 已验证，但 GitHub 端到端发布不能代做。
+- 个人 GitHub 可信仓库在本次发布准备开始时没有 remote；当前任务已明确授权
+  创建公开 `locked-fog/harman`、推送更改并核验 CI。完成前仍不能把 GitHub
+  端到端发布标为已验证。
 - DSH 自己生成的缓存/`cordis.yml` 生命周期仍依赖上游契约，Harman 自有
   materialized views、stale-stage 清理和私有状态保留已经有回归覆盖。
 - Headless Chromium 记录到一个上游页面的非阻断 DOM 建议（密码输入框未被
@@ -44,9 +45,10 @@
   - P1 外置控制面、P5 composition merge、P7 Web 和 P9 覆盖项已关联 M7 证据。
   - P6 DSH 自生成缓存生命周期和 P8 GitHub 发布仍明确标为风险/外部边界。
 
-- **GitHub 可信仓库尚未发布**
-  - 当前仓库没有 Git remote。
-  - recipes、index、CI 和 release artifacts 尚未在实际个人 GitHub 仓库端到端验证。
+- **GitHub 可信仓库（本次发布准备中）**
+  - 当前任务已授权创建公开 `locked-fog/harman` 并推送。
+  - recipes、index、CI 和 release artifacts 需在推送后用公开 raw URL 和 Hosted CI
+    结果完成端到端核验。
 
 - **M7 最终远程证据（已归档）**
   - `evidence/M7/20260821T064247Z-web-final/` 包含 manifest、摘要、浏览器结果和截图；大型日志仍保留在测试机 `~/test-work/harman/`。

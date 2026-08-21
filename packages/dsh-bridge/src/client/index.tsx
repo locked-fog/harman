@@ -29,7 +29,10 @@ async function unwrap<T>(promise: Promise<{ ok: boolean; value?: T; error?: { co
 }
 
 export async function apply(ctx: ClientContext): Promise<() => Promise<void>> {
-  const disposeRemote = await ctx.remote.$mount(harmanRemote)
+  const remoteContext = ctx as ClientContext & {
+    remote: { $mount(face: typeof harmanRemote): Promise<() => Promise<void>> }
+  }
+  const disposeRemote = await remoteContext.remote.$mount(harmanRemote)
   const remote = ctx.get('remote.harman') as RemoteFace
   const localeDispose = ctx.locale.register('settings.harman', { zh: { nav: 'Harman' }, en: { nav: 'Harman' } })
   const slotDispose = ctx.slots.inject('settings.section', () => ctx.slots.register({
