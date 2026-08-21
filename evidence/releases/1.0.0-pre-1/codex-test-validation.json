@@ -61,6 +61,12 @@
       "detail": "current MIT-bearing Bridge artifact linked into a Web Profile with official DSH 0.1.0-rc.7"
     },
     {
+      "id": "recipe-double-build",
+      "command": "node apps/cli/harman-repo.js build recipes/icelily-dsh-gitbash-preset.json OUTPUT_DIR",
+      "status": "pass",
+      "detail": "codex-test bubblewrap build produced byte-identical dual builds with provenance and SPDX SBOM"
+    },
+    {
       "id": "web-launch",
       "command": "harman profile run web-pre1-mit --port 32148",
       "status": "pass",
