@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "package": "@harman/dsh-bridge",
+  "packageVersion": "1.0.0-pre-1",
+  "sourceCommit": "de4aab71094dc8389c08c012bfb0f8c256244829",
+  "registry": "https://registry.npmjs.org",
+  "requested": {
+    "dsh": "0.1.0-rc.7",
+    "typertGenerator": "latest"
+  },
+  "resolved": {
+    "@deepseek-ai/dsh": "0.1.0-rc.7",
+    "@deepseek-ai/dsh-typert-generator": "0.0.1-rc.1",
+    "@deepseek-ai/cordis": "4.0.1",
+    "@deepseek-ai/dsh-invariants": "0.0.1-rc.1",
+    "@deepseek-ai/dsh-api-remotes": "0.0.1-rc.1",
+    "@deepseek-ai/dsh-client-locale": "0.0.1-rc.1",
+    "@deepseek-ai/dsh-client-runtime": "0.0.1-rc.1",
+    "@deepseek-ai/dsh-client-ui-settings": "0.0.1-rc.1",
+    "@deepseek-ai/dsh-client-ui-slots": "0.0.1-rc.1",
+    "@deepseek-ai/dsh-session": "0.0.1-rc.1",
+    "@deepseek-ai/dsh-typert-protocol": "0.1.0-rc.6",
+    "typescript": "6.0.3",
+    "@jridgewell/gen-mapping": "0.3.13",
+    "@jridgewell/sourcemap-codec": "1.5.5",
+    "@jridgewell/trace-mapping": "0.3.30",
+    "@jridgewell/resolve-uri": "3.1.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.1",
+    "@types/node": "22.19.0",
+    "undici-types": "6.20.0",
+    "csstype": "3.1.3",
+    "@types/prop-types": "15.7.15",
+    "@types/scheduler": "0.26.0",
+    "scheduler": "0.23.2",
+    "esbuild": "0.28.2",
+    "@esbuild/linux-x64": "0.28.2",
+    "zod": "4.4.3"
+  },
+  "dshSource": {
+    "package": "@deepseek-ai/dsh",
+    "version": "0.1.0-rc.7",
+    "tarball": "https://registry.npmjs.org/@deepseek-ai/dsh/-/dsh-0.1.0-rc.7.tgz",
+    "integrity": "sha512-ZceDCJ8FAywih+USW/OMk9jEhunlvJBGEz4kqrhau23hPzbciOazZrywH0nBRsaalSeAJ1JGBmjtw4OSjToStw==",
+    "downloadedIntegrity": "sha512-ZceDCJ8FAywih+USW/OMk9jEhunlvJBGEz4kqrhau23hPzbciOazZrywH0nBRsaalSeAJ1JGBmjtw4OSjToStw==",
+    "sha256": "2f8f0b763d611ac536f7a9411ee43c0afc067c1b8732c3102c04dbe398bcacc5",
+    "packedFile": "deepseek-ai-dsh-0.1.0-rc.7.tgz"
+  },
+  "build": {
+    "typertGenerator": "0.0.1-rc.1",
+    "esbuild": "0.28.2",
+    "typescript": "6.0.3",
+    "officialDependencies": [
+      "@deepseek-ai/cordis",
+      "@deepseek-ai/dsh-invariants",
+      "@deepseek-ai/dsh-api-remotes",
+      "@deepseek-ai/dsh-client-locale",
+      "@deepseek-ai/dsh-client-runtime",
+      "@deepseek-ai/dsh-client-ui-settings",
+      "@deepseek-ai/dsh-client-ui-slots",
+      "@deepseek-ai/dsh-session",
+      "@deepseek-ai/dsh-typert-protocol"
+    ],
+    "compatibilityFacade": "@deepseek-ai/dsh-type-meta is generated only in the temporary analyzer workspace; runtime and published declarations target @deepseek-ai/dsh-typert-protocol"
+  },
+  "artifact": {
+    "file": "harman-dsh-bridge-1.0.0-pre-1.tgz",
+    "sha256": "5416db44433ff42fd0f6a6e762263c1981ac2c146f524be98d6f54d9b13b0bd8",
+    "size": 76426,
+    "npmPack": {
+      "id": "@harman/dsh-bridge@1.0.0-pre-1",
+      "name": "@harman/dsh-bridge",
+      "version": "1.0.0-pre-1",
+      "size": 76426,
+      "unpackedSize": 380712,
+      "shasum": "880cfa6a829b5f31b6082bd65284957a310b21df",
+      "integrity": "sha512-4dtd1hztiZIo0AMknb87Z/uOrUt2nlKHYjT5/FfaxtrdJknlxW5oMnt6bpJ4BHUff4B394+xUbF6A85mYq9ZMA==",
+      "filename": "harman-dsh-bridge-1.0.0-pre-1.tgz",
+      "files": [
+        {
+          "path": "cordis.patch.yml",
+          "size": 60,
+          "mode": 420
+        },
+        {
+          "path": "lib/client.js",
+          "size": 355906,
+          "mode": 420
+        },
+        {
+          "path": "lib/index.js",
+          "size": 3493,
+          "mode": 420
+        },
+        {
+          "path": "lib/typert.host.d.ts",
+          "size": 123,
+          "mode": 420
+        },
+        {
+          "path": "lib/typert.host.js",
+          "size": 8458,
+          "mode": 420
+        },
+        {
+          "path": "lib/typert.remote-client.d.ts",
+          "size": 1236,
+          "mode": 420
+        },
+        {
+          "path": "lib/typert.remote-client.d.ts.map",
+          "size": 87,
+          "mode": 420
+        },
+        {
+          "path": "lib/typert.remote-client.js",
+          "size": 8398,
+          "mode": 420
+        },
+        {
+          "path": "lib/types/client/index.d.ts",
+          "size": 326,
+          "mode": 420
+        },
+        {
+          "path": "lib/types/index.d.ts",
+          "size": 579,
+          "mode": 420
+        },
+        {
+          "path": "lib/types/types.d.ts",
+          "size": 108,
+          "mode": 420
+        },
+        {
+          "path": "package.json",
+          "size": 1938,
+          "mode": 420
+        }
+      ],
+      "entryCount": 12,
+      "bundled": []
+    }
+  }
+}
