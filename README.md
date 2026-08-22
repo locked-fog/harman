@@ -10,13 +10,12 @@ CLI, local daemon API, and normal DSH Web bridge plugin.
 
 ```bash
 node scripts/install.mjs --prefix "$HOME/.local"
-harman state init
+harman init
 harman repo add community https://raw.githubusercontent.com/locked-fog/harman/main/evidence/releases/1.0.0-pre-1/index.json 10
 harman -Sy
 harman -Ss sidebar
 harman -S package-name
-harman profile create work --app web
-harman profile run work
+harman run
 ```
 
 The repository URL above is the `1.0.0-pre-1` public pre-release index. See `docs/user/installation.md`,
@@ -24,7 +23,10 @@ The repository URL above is the `1.0.0-pre-1` public pre-release index. See `doc
 `docs/user/profiles-and-runtimes.md` for operational use. The acceptance state
 and evidence links live in `docs/requirements/traceability.md`.
 
-Harman never removes external Resources, never performs package-manager
-resolution during ordinary package installation, and refuses unvalidated or
-breaking DSH Runtime candidates. See `docs/release/1.0.0-pre-1.md` for the
-accepted pre-release risks and the retained M7 checklist.
+Harman never removes external Resources and never performs package-manager
+resolution during ordinary package installation. `harman init` discovers a
+globally installed DSH and creates the default Profile; `latest` follows the
+newest available Runtime while retaining compatibility diagnostics. If an
+upstream release does not work, pin the affected Profile to an older version.
+See `docs/release/1.0.0-pre-1.md` for the accepted pre-release risks and the
+retained M7 checklist.

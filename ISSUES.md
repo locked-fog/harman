@@ -81,3 +81,28 @@
 - 远程 Harman/DSH daemon、DSH Web 和 Chromium 已按精确 PID 清理；最终复核未发现匹配进程，M7 disposable 日志/截图仍保留。
 - 测试机为本次验收安装的 Chromium 仍保留；对应 Snapper 快照为 47，pacman 自动快照为 48、49。
 - 远程 `~/test-work/harman` 为可丢弃工作区，仍保留 M7 日志、截图和临时源码副本，未删除以保留失败证据。
+
+## 用户体验与架构反馈（当前实机测试阻碍）
+
+- **命令设计偏离预期**
+  - 项目目前的命令行交互（特别是关于 profile 和 runtime 的配置部分）极其繁琐复杂，背离了最初设计为极简 “pacman” 类似物的初衷。
+  - 需要精简 Profile 和 Runtime 的操作链路，恢复直观的类似 `-S`, `-Sy` 等符合直觉的全局或默认环境命令，降低心智负担。
+
+- **过于严苛的 Verified DSH 限制**
+  - 项目当前强制阻断未经验证（unvalidated）的 DSH 版本，导致用户无法正常跟进并使用最新的官方 DSH。
+  - **整改建议**：取消强制的 Verified 限制。默认允许并信任 `latest` 的 DSH 版本；遇到版本兼容问题时，再由用户通过降级操作解决，而不是前置拦截。
+
+- **缺乏自动化配置能力**
+  - 存在大量可以通过自动化完成的配置却依然被设计为手动填写。例如 Runtime 的注册，目前仍需要用户手动寻找本地 Node 路径、计算 SHA-256 以及手动确认版本（`harman runtime register ... <sha256> ...`）。
+  - **整改建议**：提供类似于 `harman runtime detect` 或在初始化时自动搜索并注册全局（如 `npm list -g @deepseek-ai/dsh`）DSH 运行时的能力，自动完成路径和哈希等收集工作。
+
+## 本轮收敛结果（2026-08-22）
+
+以上三项已按“默认路径简单、底层能力保留”的方式落地：
+
+- `harman init` 自动发现全局 `@deepseek-ai/dsh`，创建并选中 `default` Profile；`harman runtime detect` 可单独重复执行。
+- `harman run`、`harman profile use NAME`、`--profile NAME` 和默认 Profile 让日常 `-S/-R` 不再要求先手工编排 Profile/Runtime 链路。
+- `latest` 不再要求 `official + compatible` 才能采用；兼容性合同仍记录为诊断，确实不可用时通过 `harman profile runtime NAME VERSION` 精确降级。
+- Runtime 自动发现会收集 npm 包版本、入口路径和 SHA-256；手工 `runtime register ...` 降为高级/非 npm 场景后备路径。
+
+本机 `npm test`/`npm run check` 共 70 项通过；真实本机 DSH 的自动发现、默认 Profile 和 bubblewrap 下的 `harman run --help` 也已通过。公开仓库推送、Hosted CI、pre-2 发布和新策略的远程/浏览器证据仍属于独立发布边界，未在本轮宣称关闭。

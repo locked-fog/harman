@@ -26,6 +26,7 @@ function parseGlobal(argv) {
   let dshVersion
   let recipePath
   let timeoutMs
+  let profileName
   for (let index = 0; index < args.length;) {
     if (args[index] === '--json') {
       json = true
@@ -51,6 +52,11 @@ function parseGlobal(argv) {
       if (!Number.isSafeInteger(value) || value <= 0) throw new ValidationError('--timeout-ms requires a positive integer')
       timeoutMs = value
       args.splice(index, 2)
+    } else if (args[index] === '--profile') {
+      const value = args[index + 1]
+      if (value === undefined || value.trim() === '') throw new ValidationError('--profile requires a name')
+      profileName = value
+      args.splice(index, 2)
     } else if (args[index] === '--home') {
       const value = args[index + 1]
       if (value === undefined || value.trim() === '') throw new ValidationError('--home requires a path')
@@ -62,13 +68,14 @@ function parseGlobal(argv) {
   }
   const environmentHome = process.env.HARMAN_HOME
   const selected = home ?? (environmentHome !== undefined && environmentHome.trim() !== '' ? environmentHome : `${homedir()}/.harman`)
-  return { args, json, dryRun, confirmed, dshVersion, recipePath, timeoutMs, home: resolve(selected) }
+  return { args, json, dryRun, confirmed, dshVersion, recipePath, timeoutMs, profileName, home: resolve(selected) }
 }
 
 function usage() {
-  return `Usage: harman [--home PATH] [--json] [--timeout-ms NUMBER] <command>
+  return `Usage: harman [--home PATH] [--profile NAME] [--json] [--timeout-ms NUMBER] <command>
 
 Commands:
+  init                       initialize state, detect DSH, and create default Profile
   state init                 initialize and validate Harman state
   state show                 show current state summary
   explain package ID         explain package origin and references
@@ -98,9 +105,10 @@ Commands:
   resource bind ID --profile NAME
   resource detach ID --profile NAME
   runtime register VERSION EXECUTABLE SHA256 SOURCE [--official]
-  runtime latest ID         select a compatible official Runtime as latest
-  runtime list              list registered DSH Runtimes
-  runtime sync              validate and promote the newest repository DSH Runtime
+  runtime detect             find and register the global @deepseek-ai/dsh
+  runtime latest ID         select a Runtime as latest
+ runtime list              list registered DSH Runtimes
+  runtime sync              import and adopt the newest repository DSH Runtime
   profile create NAME [--config FILE] [--runtime VERSION] [--app headless|web]
   profile list|show NAME    list Profiles or show one Profile
   profile clone OLD NEW     clone declarations into an isolated DSH_HOME
@@ -109,6 +117,7 @@ Commands:
   profile diff LEFT RIGHT   compare Profile declarations
   profile materialize NAME  rebuild the stock DSH Profile view
   profile activate|deactivate NAME
+  profile use NAME           make one Profile the default command target
   profile runtime NAME latest|VERSION
   profile run NAME [ARGS...] launch stock DSH in a read-only-root sandbox
   profile doctor NAME       validate Runtime, lock, manifest, and Store links
@@ -121,6 +130,7 @@ Commands:
   -R PACKAGE...              remove packages (--yes required)
   -Syu                       synchronize and upgrade explicit packages
   -Qi PACKAGE                query an installed package
+  run [ARGS...]              run the selected or default Profile
 `
 }
 
@@ -153,10 +163,10 @@ async function execute(argv) {
     return { stdout: usage(), code: 0 }
   }
   const store = new StateStore(parsed.home)
-  const packages = new PackageManager(store)
   const resources = new ResourceManager(store)
   const runtimes = new RuntimeManager(store)
   const profiles = new ProfileManager(store, { runtimes })
+  const packages = new PackageManager(store, { profiles })
   const bundles = new ProfileBundleManager(store, { profiles })
 
   function option(name) {
@@ -166,6 +176,43 @@ async function execute(argv) {
     if (value === undefined || value.startsWith('--')) throw new ValidationError(`${name} requires a value`)
     operands.splice(index, 2)
     return value
+  }
+
+  async function targetProfile({ create = false } = {}) {
+    await store.initialize()
+    if (parsed.profileName !== undefined) {
+      const profile = await profiles.show(parsed.profileName)
+      return profile.name
+    }
+    const current = await profiles.current()
+    if (current !== null) return current.name
+    if (!create) return undefined
+    return (await profiles.ensureDefault()).name
+  }
+
+  async function detectRuntimeIfMissing() {
+    const state = await store.read()
+    if (Object.values(state.runtimes).some(runtime => runtime.latest === true)) return null
+    return runtimes.detect()
+  }
+
+  async function installedPackageIds(specs) {
+    const ids = []
+    for (const spec of specs) ids.push((await packages.query(spec)).id)
+    return ids
+  }
+
+  function explicitPackageIds(result) {
+    const fromPlan = result.plan?.packages?.filter(pkg => pkg.reason === 'explicit').map(pkg => `${pkg.name}@${pkg.version}`) ?? []
+    const fromRecipe = result.package?.id === undefined ? [] : [result.package.id]
+    return [...new Set([...fromPlan, ...fromRecipe])]
+  }
+
+  if (command === 'init' && operands.length === 0) {
+    await store.initialize()
+    const runtime = await runtimes.detect()
+    const profile = await profiles.ensureDefault()
+    return { stdout: render({ ...summary(await store.read(), parsed.home), defaultProfile: profile.name, runtimeDetected: runtime.detected?.id ?? null }, parsed.json), code: 0 }
   }
 
   if (command === 'state' && operands[0] === 'init' && operands.length === 1) {
@@ -240,7 +287,7 @@ async function execute(argv) {
   }
   if (command === 'resource') {
     const action = operands.shift()
-    const profile = option('--profile')
+    const profile = parsed.profileName ?? option('--profile')
     const idOption = option('--id')
     const scope = option('--scope')
     if (action === 'scan' && operands.length <= 1 && profile === undefined && idOption === undefined && scope === undefined) {
@@ -284,7 +331,15 @@ async function execute(argv) {
     if (official) operands.splice(officialIndex, 1)
     if (action === 'register' && operands.length === 4) {
       await store.initialize()
-      return { stdout: render(await runtimes.register({ version: operands[0], executable: operands[1], contentHash: operands[2], source: operands[3], compatibility: 'compatible', official }), parsed.json), code: 0 }
+      return { stdout: render(await runtimes.register({ version: operands[0], executable: operands[1], contentHash: operands[2], source: operands[3], compatibility: 'unvalidated', official }), parsed.json), code: 0 }
+    }
+    if (action === 'detect' && operands.length === 0) {
+      await store.initialize()
+      return { stdout: render(await runtimes.detect(), parsed.json), code: 0 }
+    }
+    if (action === 'sync' && operands.length === 0) {
+      await store.initialize()
+      return { stdout: render(await runtimes.syncLatest(await packages.sources(), { dryRun: parsed.dryRun }), parsed.json), code: 0 }
     }
     if (action === 'latest' && operands.length === 1) {
       await store.initialize()
@@ -322,11 +377,20 @@ async function execute(argv) {
     if (action === 'diff' && operands.length === 2) return { stdout: render(await profiles.diff(operands[0], operands[1]), parsed.json), code: 0 }
     if (action === 'materialize' && operands.length === 1) return { stdout: render(await profiles.materialize(operands[0]), parsed.json), code: 0 }
     if ((action === 'activate' || action === 'deactivate') && operands.length === 1) return { stdout: render(await profiles.setActive(operands[0], action === 'activate'), parsed.json), code: 0 }
+    if (action === 'use' && operands.length === 1) return { stdout: render(await profiles.use(operands[0]), parsed.json), code: 0 }
     if (action === 'runtime' && operands.length === 2) return { stdout: render(await profiles.setRuntime(operands[0], operands[1] === 'latest' ? { channel: 'latest' } : { version: operands[1] }), parsed.json), code: 0 }
-    if (action === 'run' && operands.length >= 1) return { stdout: render(await profiles.run(operands[0], operands.slice(1), { timeoutMs: parsed.timeoutMs }), parsed.json), code: 0 }
+    if (action === 'run' && operands.length >= 1) {
+      await detectRuntimeIfMissing()
+      return { stdout: render(await profiles.run(operands[0], operands.slice(1), { timeoutMs: parsed.timeoutMs }), parsed.json), code: 0 }
+    }
     if (action === 'doctor' && operands.length === 1) return { stdout: render(await profiles.doctor(operands[0]), parsed.json), code: 0 }
     if (action === 'export' && operands.length === 2) return { stdout: render(await bundles.export(operands[0], operands[1]), parsed.json), code: 0 }
     if ((action === 'restore' || action === 'import') && (operands.length === 1 || operands.length === 2)) return { stdout: render(await bundles.restore(operands[0], { name: operands[1], mode: restoreMode }), parsed.json), code: 0 }
+  }
+  if (command === 'run') {
+    const name = await targetProfile({ create: true })
+    await detectRuntimeIfMissing()
+    return { stdout: render(await profiles.run(name, operands, { timeoutMs: parsed.timeoutMs }), parsed.json), code: 0 }
   }
   if (command === '-Sy' && operands.length === 0) {
     const repositories = await packages.sync()
@@ -348,11 +412,30 @@ async function execute(argv) {
       if (operands[0] !== recipe.name && operands[0] !== `${recipe.name}@${recipe.version}`) throw new ValidationError('recipe identity does not match requested package')
       result = await packages.installRecipe(recipe, { dryRun: parsed.dryRun })
     }
+    if (!parsed.dryRun) {
+      const name = await targetProfile()
+      const ids = explicitPackageIds(result)
+      if (name !== undefined && ids.length > 0) {
+        const attached = await profiles.addPackages(name, ids)
+        result = { ...result, profile: name, profilePackages: attached.packages }
+      }
+    }
     return { stdout: render(result, parsed.json), code: 0 }
   }
   if (command === '-R' && operands.length > 0) {
     await store.initialize()
-    const result = await packages.remove(operands, { dryRun: parsed.dryRun, confirmed: parsed.confirmed })
+    const name = await targetProfile()
+    const ids = name === undefined ? [] : await installedPackageIds(operands)
+    const selected = name === undefined ? null : await profiles.show(name)
+    const attached = parsed.dryRun || !parsed.confirmed || selected === null ? [] : ids.filter(id => selected.packages.includes(id))
+    if (attached.length > 0) await profiles.removePackages(name, attached)
+    let result
+    try {
+      result = await packages.remove(operands, { dryRun: parsed.dryRun, confirmed: parsed.confirmed })
+    } catch (error) {
+      if (attached.length > 0) await profiles.addPackages(name, attached)
+      throw error
+    }
     return { stdout: render(result, parsed.json), code: 0 }
   }
   if (command === '-Qi' && operands.length === 1) {

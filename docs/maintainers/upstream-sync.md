@@ -1,11 +1,14 @@
 # DSH upstream synchronization
 
 Query the official npm registry, record the resolved DSH version, integrity,
-tarball SHA-256, and source metadata when available, then validate the
-candidate against the compatibility contract before changing the `latest`
-runtime record. `harman -Sy` reports a candidate; `harman -Syu` or
-`harman runtime sync` imports it and runs the contract before changing
-`latest`.
+tarball SHA-256, and source metadata when available. The compatibility
+contract remains an important diagnostic, but it is no longer a promotion
+gate: a candidate whose contract fails is still recorded and can become
+`latest`, while artifact integrity and repository trust remain blocking.
+`harman -Sy` reports a candidate; `harman -Syu` or `harman runtime sync`
+imports it and records the contract result. `harman init` and
+`harman runtime detect` cover globally installed DSH packages without manual
+hash/version entry.
 
 ## Version-family rule
 
@@ -55,23 +58,25 @@ The release evidence records the exact upstream package used to observe the
 contract; a future DSH change that moves or persists these paths must update
 the contract and its test before `latest` can advance.
 
-## Compatibility gate
+## Compatibility diagnostics
 
 The blocking contract covers Profile loading, distinct DSH_HOME writes,
 read-only Package views, no package-manager fallback, Cordis and `ctx.*`
 lifecycle, Agent/LLM, Tool/Skill/MCP, Session, Settings/Credentials, the normal
 Host/Client bridge, strict Remote transport, and inactive ambient DSH behavior.
 
-A failed candidate is recorded as `breaking` and cannot become latest or
-launch. Classify the failure as upstream defect, environment drift, or a
-changed public boundary. Prefer a versioned external adapter, then a Bridge
-change. A Runtime patch is a last resort and requires an ADR with exact
-upstream paths, ABI impact, replay test, removal condition, and an upstreamable
-change. Harman Core never moves into such a patch.
+A failed candidate is recorded as `breaking` and remains visible in Runtime
+diagnostics, but it can become latest and launch. Classify the failure as an
+upstream defect, environment drift, or changed public boundary. Users can
+pin a known-good exact version while the issue is investigated. Prefer a
+versioned external adapter, then a Bridge change. A Runtime patch is a last
+resort and requires an ADR with exact upstream paths, ABI impact, replay
+test, removal condition, and an upstreamable change. Harman Core never moves
+into such a patch.
 
-Pinned Profiles remain on their exact compatible record while latest Profiles
-advance. Each run records the resolved version, source, hash, and timestamp; it
-does not rewrite the declared channel policy.
+Pinned Profiles remain on their exact record while latest Profiles advance.
+Each run records the resolved version, source, hash, and timestamp; it does
+not rewrite the declared channel policy.
 
 ## Embedding the Bridge in an upstream DSH checkout
 

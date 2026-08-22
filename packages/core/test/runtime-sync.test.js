@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
-import { mkdtemp, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -25,7 +25,7 @@ function runtimeTar(version, compatible) {
   return gzipSync(Buffer.concat([...chunks, Buffer.alloc(1024)]))
 }
 
-test('repository Runtime channel promotes compatible latest and refuses a breaking release', async () => {
+test('repository Runtime channel follows latest and keeps compatibility diagnostics for downgrade decisions', async () => {
   const root = await mkdtemp(join(tmpdir(), 'harman-runtime-sync-'))
   const repositoryRoot = join(root, 'repository')
   await import('node:fs/promises').then(fs => fs.mkdir(repositoryRoot, { recursive: true }))
@@ -48,10 +48,34 @@ test('repository Runtime channel promotes compatible latest and refuses a breaki
   assert.equal(promoted.changed, true)
   assert.equal((await runtimes.resolve({ channel: 'latest' })).version, '0.1.0')
   await publish(2, '0.2.0', false); await packages.sync()
-  const rejected = await runtimes.syncLatest(await packages.sources())
-  assert.equal(rejected.compatibility, 'breaking')
-  assert.equal((await runtimes.resolve({ channel: 'latest' })).version, '0.1.0')
+  const promotedBreaking = await runtimes.syncLatest(await packages.sources())
+  assert.equal(promotedBreaking.compatibility, 'breaking')
+  assert.equal(promotedBreaking.changed, true)
+  assert.equal((await runtimes.resolve({ channel: 'latest' })).version, '0.2.0')
+  assert.equal((await runtimes.resolve({ version: '0.1.0' })).version, '0.1.0')
   assert.equal((await runtimes.list()).find(runtime => runtime.version === '0.2.0').compatibility, 'breaking')
   const gc = await packages.collectStore({ dryRun: true })
   assert.equal(gc.plan.remove.length, 0)
+})
+
+test('Runtime detection imports the global DSH package without a manual hash or version entry', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'harman-runtime-detect-'))
+  const packageRoot = join(root, 'node_modules', '@deepseek-ai', 'dsh')
+  const script = join(packageRoot, 'bin', 'dsh.mjs')
+  await mkdir(join(packageRoot, 'bin'), { recursive: true })
+  await writeFile(join(packageRoot, 'package.json'), JSON.stringify({ name: '@deepseek-ai/dsh', version: '11.7.0', bin: { dsh: 'bin/dsh.mjs' } }))
+  await writeFile(script, '#!/usr/bin/env node\nconsole.log("detected")\n')
+
+  const store = new StateStore(join(root, 'home'))
+  await store.initialize()
+  const runtimes = new RuntimeManager(store)
+  const detected = await runtimes.detect({ packageRoots: [packageRoot] })
+
+  assert.equal(detected.changed, true)
+  assert.equal(detected.detected.id, 'dsh@11.7.0')
+  assert.equal(detected.detected.compatibility, 'unvalidated')
+  assert.equal(detected.detected.latest, true)
+  assert.equal(detected.detected.launcherArgs.length, 1)
+  assert.equal((await runtimes.resolve({ channel: 'latest' })).version, '11.7.0')
+  assert.equal((await runtimes.resolve({ version: '11.7.0' })).contentHash.length, 64)
 })

@@ -16,7 +16,9 @@ authoritative state usable.
 Use `state migrate` for supported schema upgrades. A future schema is refused
 without mutation. Export Profiles before a program downgrade; do not edit schema
 versions manually. `profile restore --mode strict` requires the recorded Runtime
-hash, while `follow-latest` explicitly selects the current validated channel.
+hash, while `follow-latest` explicitly selects the current latest channel. If its
+compatibility diagnostics indicate a breaking upstream, pin the Profile to a
+known-good exact version.
 
 For a repository incident: disable the source, preserve cache and audit state,
 revoke the affected key, raise or rotate the threshold, publish a higher

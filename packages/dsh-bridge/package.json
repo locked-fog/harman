@@ -1,6 +1,6 @@
 {
   "name": "@harman/dsh-bridge",
-  "version": "1.0.0-pre-2",
+  "version": "1.0.0-pre-3",
   "license": "MIT",
   "description": "Authenticated Harman control plane bridge and DSH Web Settings client",
   "type": "module",

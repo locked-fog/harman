@@ -48,6 +48,21 @@ test('HARMAN_HOME is used and blank environment falls back safely', async () => 
   assert.equal(JSON.parse(result.stdout).home, home)
 })
 
+test('init creates the default command target and profile use switches it', async () => {
+  const home = await mkdtemp(join(tmpdir(), 'harman-cli-init-'))
+  const initialized = await run(['--home', home, '--json', 'init'])
+  assert.equal(initialized.code, 0, initialized.stderr)
+  assert.equal(JSON.parse(initialized.stdout).defaultProfile, 'default')
+  assert.equal(JSON.parse(initialized.stdout).profiles, 1)
+
+  const created = await run(['--home', home, '--json', 'profile', 'create', 'work'])
+  assert.equal(created.code, 0, created.stderr)
+  const selected = await run(['--home', home, '--json', 'profile', 'use', 'work'])
+  assert.equal(selected.code, 0, selected.stderr)
+  assert.equal(JSON.parse(selected.stdout).name, 'work')
+  assert.equal(JSON.parse((await run(['--home', home, '--json', 'profile', 'show', 'default'])).stdout).active, false)
+})
+
 test('explain and impact are script-friendly and preserve identifiers', async () => {
   const home = await mkdtemp(join(tmpdir(), 'harman-cli-graph-'))
   const store = new StateStore(home)

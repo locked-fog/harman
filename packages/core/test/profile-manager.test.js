@@ -23,14 +23,27 @@ async function fixture() {
   return { root, home, executable, store, runtimes, manager: new ProfileManager(store, { runtimes }) }
 }
 
-test('Runtime latest accepts only official compatible releases and exact pins resolve independently', async () => {
+test('Runtime latest follows the selected release and exact pins remain available independently', async () => {
   const { executable, runtimes } = await fixture()
   const fixtureScript = new URL('../../../tests/fixtures/fake-dsh.mjs', import.meta.url).pathname
   const hash = createHash('sha256').update(await readFile(fixtureScript)).digest('hex')
   const breaking = await runtimes.register({ version: '0.2.0', executable, launcherArgs: [fixtureScript], contentHash: hash, source: 'fixture-breaking', compatibility: 'breaking', official: true })
-  await assert.rejects(runtimes.setLatest(breaking.id), /cannot become latest/)
-  assert.equal((await runtimes.resolve({ channel: 'latest' })).version, '0.1.0-rc.7')
-  await assert.rejects(runtimes.resolve({ version: '0.2.0' }), /not compatible/)
+  await runtimes.setLatest(breaking.id)
+  assert.equal((await runtimes.resolve({ channel: 'latest' })).version, '0.2.0')
+  assert.equal((await runtimes.resolve({ version: '0.2.0' })).version, '0.2.0')
+})
+
+test('default Profile shortcuts select one command target without changing isolation', async () => {
+  const { manager } = await fixture()
+  const defaultProfile = await manager.ensureDefault()
+  assert.equal(defaultProfile.name, 'default')
+  assert.equal((await manager.current()).name, 'default')
+
+  await manager.create({ name: 'work' })
+  await manager.use('work')
+  assert.equal((await manager.current()).name, 'work')
+  assert.equal((await manager.show('default')).active, false)
+  assert.equal((await manager.show('work')).active, true)
 })
 
 test('Profile lifecycle keeps distinct DSH_HOME roots and materializes deterministic stock manifests', async () => {

@@ -8,10 +8,12 @@ package manifest, Cordis patch, Resource views, and `harman.lock.json`. Package
 module links point at immutable content-addressed Store objects; no `dsh plugin`,
 npm, pnpm, lifecycle script, or lockfile generation participates.
 
-DSH Runtimes are verified records separate from Packages. `{channel:"latest"}`
-resolves only the one official compatible Runtime selected as latest, while
-`{version:"..."}` resolves an exact compatible record. A breaking or unvalidated
-release cannot become latest or launch. Each run audits the resolved version,
+DSH Runtimes are records separate from Packages. `{channel:"latest"}` resolves
+the one Runtime selected as latest, including a locally detected or otherwise
+unvalidated candidate. `{version:"..."}` resolves an exact record. A breaking
+or unvalidated result is retained as a diagnostic and does not block latest or
+launch; users can pin an older exact version when an upstream release does not
+work. Each run audits the resolved version,
 source, hash, and timestamp without replacing the Profile's channel policy.
 
 Launch requires `bubblewrap`. The host root, including Store and other Profile

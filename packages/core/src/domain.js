@@ -115,7 +115,7 @@ export function createProfile(state, input) {
     mcp: input.mcp ?? {},
     models: input.models ?? {},
     cordisPatch: input.cordisPatch ?? [],
-    active: false,
+    active: input.active === true,
     running: false,
     runOwnerPid: null,
     runStartedAt: null,

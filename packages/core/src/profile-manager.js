@@ -16,6 +16,8 @@ function profileRoot(stateStore, name) {
   return join(stateStore.root, 'profiles', name)
 }
 
+export const DEFAULT_PROFILE = 'default'
+
 async function exists(path) {
   try { await lstat(path); return true } catch (error) { if (error?.code === 'ENOENT') return false; throw error }
 }
@@ -299,7 +301,7 @@ export class ProfileManager {
       app: input.app ?? 'headless',
       runtime: input.runtime ?? { channel: 'latest' }, lastResolvedRuntime: null,
       pluginConfig: input.pluginConfig ?? {}, promptOrder: input.promptOrder ?? [], mcp: input.mcp ?? {},
-      models: input.models ?? {}, cordisPatch: input.cordisPatch ?? [], active: false, running: false,
+      models: input.models ?? {}, cordisPatch: input.cordisPatch ?? [], active: input.active === true, running: false,
     }
     const stage = `${root}.stage-${randomUUID()}`
     try {
@@ -320,6 +322,27 @@ export class ProfileManager {
 
   async list() {
     return Object.values((await this.stateStore.read()).profiles).sort((a, b) => a.name.localeCompare(b.name))
+  }
+
+  async ensureDefault(input = {}) {
+    await this.stateStore.initialize()
+    const state = await this.stateStore.read()
+    if (state.profiles[DEFAULT_PROFILE] !== undefined) return state.profiles[DEFAULT_PROFILE]
+    return (await this.create({ ...input, name: DEFAULT_PROFILE, active: true })).profile
+  }
+
+  async current() {
+    const state = await this.stateStore.read()
+    const active = Object.values(state.profiles).filter(profile => profile.active).sort((left, right) => left.name.localeCompare(right.name))
+    return active[0] ?? state.profiles[DEFAULT_PROFILE] ?? null
+  }
+
+  async use(name) {
+    return (await this.stateStore.transaction({ action: 'profile.use', details: { name } }, state => {
+      if (state.profiles[name] === undefined) throw new NotFoundError(`profile ${name} does not exist`)
+      for (const profile of Object.values(state.profiles)) profile.active = profile.name === name
+      return state.profiles[name]
+    })).result
   }
 
   async show(name) {
@@ -417,6 +440,40 @@ export class ProfileManager {
     })).result
   }
 
+  async setPackages(name, packageIds) {
+    await this.stateStore.initialize()
+    const state = await this.stateStore.read()
+    const profile = state.profiles[name]
+    if (profile === undefined) throw new NotFoundError(`profile ${name} does not exist`)
+    const packages = [...new Set(packageIds)].sort()
+    for (const id of packages) if (state.packages[id] === undefined) throw new NotFoundError(`package ${id} does not exist`)
+    const previous = [...profile.packages]
+    if (JSON.stringify(previous) === JSON.stringify(packages)) return { profile: name, packages, changed: false }
+    await this.stateStore.transaction({ action: 'profile.packages', details: { name, packages } }, draft => {
+      draft.profiles[name].packages = packages
+    })
+    try {
+      const lock = await this.materialize(name)
+      return { profile: name, packages, changed: true, lockHash: lock.lockHash }
+    } catch (error) {
+      await this.stateStore.transaction({ action: 'profile.packages.rollback', details: { name } }, draft => {
+        if (draft.profiles[name] !== undefined) draft.profiles[name].packages = previous
+      })
+      throw error
+    }
+  }
+
+  async addPackages(name, packageIds) {
+    const profile = await this.show(name)
+    return this.setPackages(name, [...profile.packages, ...packageIds])
+  }
+
+  async removePackages(name, packageIds) {
+    const profile = await this.show(name)
+    const remove = new Set(packageIds)
+    return this.setPackages(name, profile.packages.filter(id => !remove.has(id)))
+  }
+
   async setRuntime(name, policy) {
     const previous = (await this.show(name)).runtime
     await this.runtimes.resolve(policy)
@@ -471,7 +528,7 @@ export class ProfileManager {
     checks.push({ id: 'dsh-home', ok: await exists(profile.dshHome), detail: profile.dshHome })
     checks.push({ id: 'manifest', ok: await exists(join(profile.dshHome, 'profiles', 'harman', 'package.json')) })
     checks.push({ id: 'lock', ok: await exists(join(profile.dshHome, 'harman.lock.json')) })
-    checks.push({ id: 'runtime', ok: profile.runtimeStatus === 'compatible', detail: profile.runtimeStatus })
+    checks.push({ id: 'runtime', ok: profile.runtimeStatus !== 'unresolved', detail: profile.runtimeStatus })
     checks.push({ id: 'running', ok: profile.running !== true, detail: profile.running ? 'profile reports running' : 'not running' })
     const links = []
     const lockPath = join(profile.dshHome, 'harman.lock.json')

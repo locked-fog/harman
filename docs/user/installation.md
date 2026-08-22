@@ -1,16 +1,24 @@
 # Installation, upgrade, and removal
 
 Harman requires Node.js 22.19 or newer. Profile launch and local recipe builds
-require Linux bubblewrap (`bwrap`). DSH itself is supplied as a verified Runtime
-record or as a repository Runtime artifact; it is not vendored into Harman.
+require Linux bubblewrap (`bwrap`). DSH is discovered from the global npm
+installation when possible, or can be followed from a configured repository;
+it is not vendored into Harman.
 
 Install into a user prefix:
 
 ```bash
 node scripts/install.mjs --prefix "$HOME/.local"
 export PATH="$HOME/.local/bin:$PATH"
-harman state init
+harman init
 ```
+
+`harman init` creates the `default` Profile and runs the automatic DSH
+discovery. If discovery finds nothing, the state is still initialized; run
+`harman runtime detect` after installing `@deepseek-ai/dsh` globally. The
+advanced manual form remains available as `harman runtime register ...`, but
+ordinary users do not need to calculate a Runtime hash or select a version
+by hand.
 
 Running the same command performs an atomic program upgrade. The installer
 stages a complete copy, swaps the program directory, validates ownership of

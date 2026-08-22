@@ -12,6 +12,9 @@ harman state init
 harman --json state show
 ```
 
+For the normal user path, use `harman init` instead. It also discovers a
+global DSH Runtime and creates the `default` Profile.
+
 The state document is schema-versioned and revisioned. Writers use one durable
 transaction with an intent journal, temporary file, fsync, atomic rename, and a
 coupled redacted audit event. A future schema is refused; it is never rewritten

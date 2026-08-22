@@ -129,6 +129,23 @@ test('pacman-style sync/search/dry-run/install/query/remove uses verified Store 
   assert.equal((await run(home, ['resource', 'show', 'skill/demo'])).code, 5)
 })
 
+test('the short package path attaches to the initialized default Profile and removes cleanly', async () => {
+  const { home, repositoryRoot } = await fixture()
+  assert.equal((await run(home, ['repo', 'add', 'main', pathToFileURL(join(repositoryRoot, 'index.json')).href])).code, 0)
+  assert.equal((await run(home, ['init'])).code, 0)
+  assert.equal((await run(home, ['-Sy'])).code, 0)
+  const installed = await run(home, ['-S', 'demo'])
+  assert.equal(installed.code, 0, installed.stderr)
+  assert.equal(JSON.parse(installed.stdout).profile, 'default')
+  assert.deepEqual(JSON.parse((await run(home, ['profile', 'show', 'default'])).stdout).packages, ['demo@1.0.0'])
+
+  const refused = await run(home, ['-R', 'demo'])
+  assert.equal(refused.code, 4)
+  const removed = await run(home, ['--yes', '-R', 'demo'])
+  assert.equal(removed.code, 0, removed.stderr)
+  assert.deepEqual(JSON.parse((await run(home, ['profile', 'show', 'default'])).stdout).packages, [])
+})
+
 test('-Syu previews without mutation and upgrades explicit package after sync', async () => {
   const { home, repositoryRoot, publish } = await fixture()
   assert.equal((await run(home, ['repo', 'add', 'main', pathToFileURL(join(repositoryRoot, 'index.json')).href])).code, 0)
